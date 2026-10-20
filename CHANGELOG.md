@@ -6,6 +6,13 @@ Until 1.0, minor versions (0.x.0) may contain breaking changes. They will always
 
 ## [Unreleased]
 
+## [0.2.1] - 2026-10-20
+
+### Changed
+- Apps can use TypeORM 0.3 or 1.x (`peerDependencies.typeorm` is now `^0.3.20 || ^1.0.0`). CI runs every check against both.
+- The Redis client loads whichever way the installed `ioredis` version exports it.
+- Dependabot groups small updates into one pull request and skips major updates of `typescript` and `@types/node`.
+
 ## [0.2.0] - 2026-10-20
 
 Production hardening.

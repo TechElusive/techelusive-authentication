@@ -1,6 +1,6 @@
 {
   "name": "@techelusive/nest-auth",
-  "version": "0.2.0",
+  "version": "0.2.1",
   "description": "Reusable, production-grade authentication for NestJS apps: passwords, codes, magic links, social, passkeys, 2FA, organizations and API keys, stored in each app's own database",
   "license": "MIT",
   "repository": {
