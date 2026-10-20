@@ -6,11 +6,26 @@ updates:
       interval: weekly
     open-pull-requests-limit: 10
     groups:
+      # Small, safe updates arrive together in one pull request.
+      minor-and-patch:
+        update-types: ['minor', 'patch']
       nestjs:
         patterns: ['@nestjs/*']
       aws-sdk:
         patterns: ['@aws-sdk/*']
+    ignore:
+      # Types must match the oldest Node version we support (engines: >=22), or code could use
+      # Node APIs that don't exist there.
+      - dependency-name: '@types/node'
+        update-types: ['version-update:semver-major']
+      # TypeScript 7 (the new native compiler) doesn't yet work with ts-node and other tools that
+      # use the compiler API. Revisit once ts-node supports it.
+      - dependency-name: 'typescript'
+        update-types: ['version-update:semver-major']
   - package-ecosystem: github-actions
     directory: /
     schedule:
       interval: weekly
+    groups:
+      github-actions:
+        patterns: ['*']

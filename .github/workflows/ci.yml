@@ -11,6 +11,12 @@ permissions:
 jobs:
   test:
     runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        # Apps may use either TypeORM line, so every check runs against both.
+        typeorm: ['0.3', '1']
+    name: test (typeorm ${{ matrix.typeorm }})
     services:
       postgres:
         image: postgres:16
@@ -30,6 +36,8 @@ jobs:
           node-version: 22
       # Switch to `npm ci` (and add `cache: npm` above) once package-lock.json is committed.
       - run: npm install
+      - name: Use TypeORM ${{ matrix.typeorm }}
+        run: npm install --no-save typeorm@${{ matrix.typeorm }}
       - name: Known vulnerabilities in dependencies (high or critical)
         run: npm audit --omit=dev --audit-level=high
       - run: npm run typecheck

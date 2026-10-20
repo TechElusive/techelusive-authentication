@@ -30,7 +30,9 @@ export class RateLimiterService implements OnModuleDestroy {
   constructor(@Inject(AUTH_OPTIONS_TOKEN) options: AuthOptions) {
     if (options.redisUrl) {
       // Loaded only when Redis is used, so apps without Redis don't need the package installed.
-      const Redis = require('ioredis');
+      const ioredis = require('ioredis');
+      // ioredis 5 exports the class itself; newer versions export it as `Redis` (and `default`).
+      const Redis = ioredis.Redis ?? ioredis.default ?? ioredis;
       this.redisClient = new Redis(options.redisUrl, { maxRetriesPerRequest: 1 });
     } else if (process.env.NODE_ENV === PRODUCTION_ENVIRONMENT) {
       // Only reachable with singleServer: true (startup validation requires redisUrl otherwise).
