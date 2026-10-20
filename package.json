@@ -49,7 +49,7 @@
   },
   "dependencies": {
     "@aws-sdk/client-kms": "^3.700.0",
-    "@simplewebauthn/server": "^13.1.0",
+    "@simplewebauthn/server": "^14.0.3",
     "argon2": "^0.41.1"
   },
   "optionalDependencies": {
