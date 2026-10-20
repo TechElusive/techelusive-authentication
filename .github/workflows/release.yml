@@ -1,11 +1,14 @@
 name: Release to npm
 
-# Publishes to npm when you publish a GitHub Release (Releases > Draft a new release > tag v0.2.1 > Publish).
+# Sends a new version to npm when you publish a GitHub Release (Releases > Draft a new release >
+# tag v0.2.1 > Publish).
 #
 # Uses npm "trusted publishing": GitHub proves to npm which repository and workflow is publishing,
-# so no npm token is stored anywhere. One-time setup on npmjs.com, after the first manual publish:
-# package > Settings > Trusted Publisher > GitHub Actions, with this repository and the workflow
-# file name "release.yml".
+# so no npm token is stored anywhere (npmjs.com > package > Settings > Trusted Publisher).
+#
+# The version is STAGED, not published straight away: it goes live only after you approve it with
+# your 2FA on npmjs.com (package > Staged Packages > Approve) or with `npm stage approve <id>`.
+# So even a compromised workflow can't release a version without you.
 
 on:
   release:
@@ -25,11 +28,13 @@ jobs:
         with:
           node-version: 22
           registry-url: https://registry.npmjs.org
-      # Trusted publishing needs a newer npm than the one bundled with Node 22.
+      # Trusted publishing and staged publishing need a newer npm than the one bundled with Node 22.
       - run: npm install -g npm@latest
       - run: npm ci
       - name: Release tag matches the package.json version
         run: test "v$(node -p "require('./package.json').version")" = "$GITHUB_REF_NAME"
       - run: npm audit --omit=dev --audit-level=high
-      # prepublishOnly runs typecheck, tests and the build first. Provenance comes from package.json.
-      - run: npm publish
+      - name: Typecheck, test and build
+        run: npm run typecheck && npm test && npm run build
+      # Provenance comes from package.json (publishConfig.provenance).
+      - run: npm stage publish
