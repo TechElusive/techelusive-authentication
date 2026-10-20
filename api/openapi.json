@@ -1,0 +1,4399 @@
+{
+  "openapi": "3.0.3",
+  "info": {
+    "title": "@techelusive/nest-auth",
+    "version": "0.2.0",
+    "description": "Authentication API for NestJS apps. Every response has `success: true|false`; errors carry a stable `code`.\n\nUse **Authorize** with an access token from Login (or any sign-in) to call protected endpoints."
+  },
+  "servers": [
+    {
+      "url": "http://localhost:3000",
+      "description": "Local playground"
+    }
+  ],
+  "tags": [
+    {
+      "name": "1. Email + password"
+    },
+    {
+      "name": "2. Passwordless"
+    },
+    {
+      "name": "3. Account and sessions"
+    },
+    {
+      "name": "4. Two-factor"
+    },
+    {
+      "name": "5. Social sign-in"
+    },
+    {
+      "name": "6. Passkeys"
+    },
+    {
+      "name": "7. Organizations"
+    },
+    {
+      "name": "8. Admin"
+    },
+    {
+      "name": "9. Public keys"
+    }
+  ],
+  "paths": {
+    "/auth/register": {
+      "post": {
+        "tags": [
+          "1. Email + password"
+        ],
+        "summary": "Register",
+        "description": "Default settings: returns verification_required and emails a verification link (see the dev inbox).\n\nFull request/response details: https://github.com/TechElusive/techelusive-authentication/tree/main/docs/endpoints",
+        "operationId": "post_auth_register",
+        "security": [],
+        "parameters": [],
+        "responses": {
+          "201": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Success"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/Error"
+          },
+          "401": {
+            "$ref": "#/components/responses/Error"
+          },
+          "403": {
+            "$ref": "#/components/responses/Error"
+          },
+          "429": {
+            "$ref": "#/components/responses/Error"
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object"
+              },
+              "example": {
+                "email": "asha@example.com",
+                "password": "correct horse battery",
+                "firstName": "Asha",
+                "lastName": "Rao",
+                "acceptTerms": true,
+                "acceptPrivacyPolicy": true
+              }
+            }
+          }
+        }
+      }
+    },
+    "/auth/email/send-verification": {
+      "post": {
+        "tags": [
+          "1. Email + password"
+        ],
+        "summary": "Resend verification email",
+        "description": "Full request/response details: https://github.com/TechElusive/techelusive-authentication/tree/main/docs/endpoints",
+        "operationId": "post_auth_emailSendVerification",
+        "security": [],
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Success"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/Error"
+          },
+          "401": {
+            "$ref": "#/components/responses/Error"
+          },
+          "403": {
+            "$ref": "#/components/responses/Error"
+          },
+          "429": {
+            "$ref": "#/components/responses/Error"
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object"
+              },
+              "example": {
+                "email": "asha@example.com"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/auth/email/verify": {
+      "post": {
+        "tags": [
+          "1. Email + password"
+        ],
+        "summary": "Verify email (token from inbox)",
+        "description": "Full request/response details: https://github.com/TechElusive/techelusive-authentication/tree/main/docs/endpoints",
+        "operationId": "post_auth_emailVerify",
+        "security": [],
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Success"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/Error"
+          },
+          "401": {
+            "$ref": "#/components/responses/Error"
+          },
+          "403": {
+            "$ref": "#/components/responses/Error"
+          },
+          "429": {
+            "$ref": "#/components/responses/Error"
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object"
+              },
+              "example": {
+                "token": "<verificationToken>"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/auth/login": {
+      "post": {
+        "tags": [
+          "1. Email + password"
+        ],
+        "summary": "Login",
+        "description": "Saves accessToken / refreshToken automatically. If 2FA is on, saves challengeToken: then run \"Two-factor > Verify 2FA sign-in\".\n\nFull request/response details: https://github.com/TechElusive/techelusive-authentication/tree/main/docs/endpoints",
+        "operationId": "post_auth_login",
+        "security": [],
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Success"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/Error"
+          },
+          "401": {
+            "$ref": "#/components/responses/Error"
+          },
+          "403": {
+            "$ref": "#/components/responses/Error"
+          },
+          "429": {
+            "$ref": "#/components/responses/Error"
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object"
+              },
+              "example": {
+                "email": "asha@example.com",
+                "password": "correct horse battery"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/auth/password/forgot": {
+      "post": {
+        "tags": [
+          "1. Email + password"
+        ],
+        "summary": "Forgot password",
+        "description": "Full request/response details: https://github.com/TechElusive/techelusive-authentication/tree/main/docs/endpoints",
+        "operationId": "post_auth_passwordForgot",
+        "security": [],
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Success"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/Error"
+          },
+          "401": {
+            "$ref": "#/components/responses/Error"
+          },
+          "403": {
+            "$ref": "#/components/responses/Error"
+          },
+          "429": {
+            "$ref": "#/components/responses/Error"
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object"
+              },
+              "example": {
+                "email": "asha@example.com"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/auth/password/reset": {
+      "post": {
+        "tags": [
+          "1. Email + password"
+        ],
+        "summary": "Reset password (token from inbox)",
+        "description": "Signs out every device. Afterwards sign in with a brand new passphrase.\n\nFull request/response details: https://github.com/TechElusive/techelusive-authentication/tree/main/docs/endpoints",
+        "operationId": "post_auth_passwordReset",
+        "security": [],
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Success"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/Error"
+          },
+          "401": {
+            "$ref": "#/components/responses/Error"
+          },
+          "403": {
+            "$ref": "#/components/responses/Error"
+          },
+          "429": {
+            "$ref": "#/components/responses/Error"
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object"
+              },
+              "example": {
+                "token": "<resetToken>",
+                "newPassword": "a brand new passphrase"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/auth/password/change": {
+      "post": {
+        "tags": [
+          "1. Email + password"
+        ],
+        "summary": "Change password",
+        "description": "Full request/response details: https://github.com/TechElusive/techelusive-authentication/tree/main/docs/endpoints",
+        "operationId": "post_auth_passwordChange",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Success"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/Error"
+          },
+          "401": {
+            "$ref": "#/components/responses/Error"
+          },
+          "403": {
+            "$ref": "#/components/responses/Error"
+          },
+          "429": {
+            "$ref": "#/components/responses/Error"
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object"
+              },
+              "example": {
+                "currentPassword": "correct horse battery",
+                "newPassword": "a brand new passphrase"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/auth/email/send-otp": {
+      "post": {
+        "tags": [
+          "2. Passwordless"
+        ],
+        "summary": "Send email code",
+        "description": "Needs emailOtp.enabled (the playground turns it on).\n\nFull request/response details: https://github.com/TechElusive/techelusive-authentication/tree/main/docs/endpoints",
+        "operationId": "post_auth_emailSendOtp",
+        "security": [],
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Success"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/Error"
+          },
+          "401": {
+            "$ref": "#/components/responses/Error"
+          },
+          "403": {
+            "$ref": "#/components/responses/Error"
+          },
+          "429": {
+            "$ref": "#/components/responses/Error"
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object"
+              },
+              "example": {
+                "email": "ravi@example.com"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/auth/email/verify-otp": {
+      "post": {
+        "tags": [
+          "2. Passwordless"
+        ],
+        "summary": "Verify email code (code from inbox)",
+        "description": "Full request/response details: https://github.com/TechElusive/techelusive-authentication/tree/main/docs/endpoints",
+        "operationId": "post_auth_emailVerifyOtp",
+        "security": [],
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Success"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/Error"
+          },
+          "401": {
+            "$ref": "#/components/responses/Error"
+          },
+          "403": {
+            "$ref": "#/components/responses/Error"
+          },
+          "429": {
+            "$ref": "#/components/responses/Error"
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object"
+              },
+              "example": {
+                "email": "ravi@example.com",
+                "code": "<emailCode>",
+                "firstName": "Ravi",
+                "lastName": "Kumar",
+                "acceptTerms": true,
+                "acceptPrivacyPolicy": true
+              }
+            }
+          }
+        }
+      }
+    },
+    "/auth/magic-link/send": {
+      "post": {
+        "tags": [
+          "2. Passwordless"
+        ],
+        "summary": "Send magic link",
+        "description": "Full request/response details: https://github.com/TechElusive/techelusive-authentication/tree/main/docs/endpoints",
+        "operationId": "post_auth_magicLinkSend",
+        "security": [],
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Success"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/Error"
+          },
+          "401": {
+            "$ref": "#/components/responses/Error"
+          },
+          "403": {
+            "$ref": "#/components/responses/Error"
+          },
+          "429": {
+            "$ref": "#/components/responses/Error"
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object"
+              },
+              "example": {
+                "email": "ravi@example.com"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/auth/magic-link/verify": {
+      "post": {
+        "tags": [
+          "2. Passwordless"
+        ],
+        "summary": "Verify magic link (token from inbox)",
+        "description": "Full request/response details: https://github.com/TechElusive/techelusive-authentication/tree/main/docs/endpoints",
+        "operationId": "post_auth_magicLinkVerify",
+        "security": [],
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Success"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/Error"
+          },
+          "401": {
+            "$ref": "#/components/responses/Error"
+          },
+          "403": {
+            "$ref": "#/components/responses/Error"
+          },
+          "429": {
+            "$ref": "#/components/responses/Error"
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object"
+              },
+              "example": {
+                "token": "<magicLinkToken>",
+                "firstName": "Ravi",
+                "lastName": "Kumar",
+                "acceptTerms": true,
+                "acceptPrivacyPolicy": true
+              }
+            }
+          }
+        }
+      }
+    },
+    "/auth/phone/send-otp": {
+      "post": {
+        "tags": [
+          "2. Passwordless"
+        ],
+        "summary": "Send phone code",
+        "description": "The playground delivers SMS to the dev inbox instead of a real phone.\n\nFull request/response details: https://github.com/TechElusive/techelusive-authentication/tree/main/docs/endpoints",
+        "operationId": "post_auth_phoneSendOtp",
+        "security": [],
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Success"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/Error"
+          },
+          "401": {
+            "$ref": "#/components/responses/Error"
+          },
+          "403": {
+            "$ref": "#/components/responses/Error"
+          },
+          "429": {
+            "$ref": "#/components/responses/Error"
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object"
+              },
+              "example": {
+                "phoneNumber": "+919876543210"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/auth/phone/verify-otp": {
+      "post": {
+        "tags": [
+          "2. Passwordless"
+        ],
+        "summary": "Verify phone code (code from inbox)",
+        "description": "Full request/response details: https://github.com/TechElusive/techelusive-authentication/tree/main/docs/endpoints",
+        "operationId": "post_auth_phoneVerifyOtp",
+        "security": [],
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Success"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/Error"
+          },
+          "401": {
+            "$ref": "#/components/responses/Error"
+          },
+          "403": {
+            "$ref": "#/components/responses/Error"
+          },
+          "429": {
+            "$ref": "#/components/responses/Error"
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object"
+              },
+              "example": {
+                "phoneNumber": "+919876543210",
+                "code": "<smsCode>",
+                "firstName": "Meera",
+                "lastName": "Shah",
+                "acceptTerms": true,
+                "acceptPrivacyPolicy": true
+              }
+            }
+          }
+        }
+      }
+    },
+    "/auth/me": {
+      "get": {
+        "tags": [
+          "3. Account and sessions"
+        ],
+        "summary": "Get my profile",
+        "description": "Full request/response details: https://github.com/TechElusive/techelusive-authentication/tree/main/docs/endpoints",
+        "operationId": "get_auth_me",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Success"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/Error"
+          },
+          "401": {
+            "$ref": "#/components/responses/Error"
+          },
+          "403": {
+            "$ref": "#/components/responses/Error"
+          },
+          "429": {
+            "$ref": "#/components/responses/Error"
+          }
+        }
+      },
+      "patch": {
+        "tags": [
+          "3. Account and sessions"
+        ],
+        "summary": "Update my profile",
+        "description": "Full request/response details: https://github.com/TechElusive/techelusive-authentication/tree/main/docs/endpoints",
+        "operationId": "patch_auth_me",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Success"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/Error"
+          },
+          "401": {
+            "$ref": "#/components/responses/Error"
+          },
+          "403": {
+            "$ref": "#/components/responses/Error"
+          },
+          "429": {
+            "$ref": "#/components/responses/Error"
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object"
+              },
+              "example": {
+                "firstName": "Asha",
+                "lastName": "Rao-Mehta",
+                "metadata": {
+                  "preferredLanguage": "hi"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "3. Account and sessions"
+        ],
+        "summary": "Delete my account",
+        "description": "Permanent.\n\nFull request/response details: https://github.com/TechElusive/techelusive-authentication/tree/main/docs/endpoints",
+        "operationId": "delete_auth_me",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Success"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/Error"
+          },
+          "401": {
+            "$ref": "#/components/responses/Error"
+          },
+          "403": {
+            "$ref": "#/components/responses/Error"
+          },
+          "429": {
+            "$ref": "#/components/responses/Error"
+          }
+        }
+      }
+    },
+    "/auth/sign-in-methods": {
+      "get": {
+        "tags": [
+          "3. Account and sessions"
+        ],
+        "summary": "My sign-in methods",
+        "description": "Full request/response details: https://github.com/TechElusive/techelusive-authentication/tree/main/docs/endpoints",
+        "operationId": "get_auth_signInMethods",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Success"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/Error"
+          },
+          "401": {
+            "$ref": "#/components/responses/Error"
+          },
+          "403": {
+            "$ref": "#/components/responses/Error"
+          },
+          "429": {
+            "$ref": "#/components/responses/Error"
+          }
+        }
+      }
+    },
+    "/auth/sessions": {
+      "get": {
+        "tags": [
+          "3. Account and sessions"
+        ],
+        "summary": "My devices",
+        "description": "Full request/response details: https://github.com/TechElusive/techelusive-authentication/tree/main/docs/endpoints",
+        "operationId": "get_auth_sessions",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Success"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/Error"
+          },
+          "401": {
+            "$ref": "#/components/responses/Error"
+          },
+          "403": {
+            "$ref": "#/components/responses/Error"
+          },
+          "429": {
+            "$ref": "#/components/responses/Error"
+          }
+        }
+      }
+    },
+    "/auth/sessions/{sessionId}": {
+      "delete": {
+        "tags": [
+          "3. Account and sessions"
+        ],
+        "summary": "Sign out one device",
+        "description": "Uses <sessionId> (the current device unless you change it).\n\nFull request/response details: https://github.com/TechElusive/techelusive-authentication/tree/main/docs/endpoints",
+        "operationId": "delete_auth_session",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "sessionId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Success"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/Error"
+          },
+          "401": {
+            "$ref": "#/components/responses/Error"
+          },
+          "403": {
+            "$ref": "#/components/responses/Error"
+          },
+          "429": {
+            "$ref": "#/components/responses/Error"
+          }
+        }
+      }
+    },
+    "/auth/refresh": {
+      "post": {
+        "tags": [
+          "3. Account and sessions"
+        ],
+        "summary": "Refresh tokens",
+        "description": "Send it twice with the same old token to see reuse detection end the session.\n\nFull request/response details: https://github.com/TechElusive/techelusive-authentication/tree/main/docs/endpoints",
+        "operationId": "post_auth_refresh",
+        "security": [],
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Success"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/Error"
+          },
+          "401": {
+            "$ref": "#/components/responses/Error"
+          },
+          "403": {
+            "$ref": "#/components/responses/Error"
+          },
+          "429": {
+            "$ref": "#/components/responses/Error"
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object"
+              },
+              "example": {
+                "refreshToken": "<refreshToken>"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/auth/logout": {
+      "post": {
+        "tags": [
+          "3. Account and sessions"
+        ],
+        "summary": "Logout (this device)",
+        "description": "Full request/response details: https://github.com/TechElusive/techelusive-authentication/tree/main/docs/endpoints",
+        "operationId": "post_auth_logout",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Success"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/Error"
+          },
+          "401": {
+            "$ref": "#/components/responses/Error"
+          },
+          "403": {
+            "$ref": "#/components/responses/Error"
+          },
+          "429": {
+            "$ref": "#/components/responses/Error"
+          }
+        }
+      }
+    },
+    "/auth/logout-all": {
+      "post": {
+        "tags": [
+          "3. Account and sessions"
+        ],
+        "summary": "Logout everywhere",
+        "description": "Full request/response details: https://github.com/TechElusive/techelusive-authentication/tree/main/docs/endpoints",
+        "operationId": "post_auth_logoutAll",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Success"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/Error"
+          },
+          "401": {
+            "$ref": "#/components/responses/Error"
+          },
+          "403": {
+            "$ref": "#/components/responses/Error"
+          },
+          "429": {
+            "$ref": "#/components/responses/Error"
+          }
+        }
+      }
+    },
+    "/auth/deactivate": {
+      "post": {
+        "tags": [
+          "3. Account and sessions"
+        ],
+        "summary": "Deactivate my account",
+        "description": "Then \"Login\" returns ACCOUNT_DEACTIVATED with a reactivationToken (saved automatically).\n\nFull request/response details: https://github.com/TechElusive/techelusive-authentication/tree/main/docs/endpoints",
+        "operationId": "post_auth_deactivate",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Success"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/Error"
+          },
+          "401": {
+            "$ref": "#/components/responses/Error"
+          },
+          "403": {
+            "$ref": "#/components/responses/Error"
+          },
+          "429": {
+            "$ref": "#/components/responses/Error"
+          }
+        }
+      }
+    },
+    "/auth/reactivate": {
+      "post": {
+        "tags": [
+          "3. Account and sessions"
+        ],
+        "summary": "Reactivate",
+        "description": "Full request/response details: https://github.com/TechElusive/techelusive-authentication/tree/main/docs/endpoints",
+        "operationId": "post_auth_reactivate",
+        "security": [],
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Success"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/Error"
+          },
+          "401": {
+            "$ref": "#/components/responses/Error"
+          },
+          "403": {
+            "$ref": "#/components/responses/Error"
+          },
+          "429": {
+            "$ref": "#/components/responses/Error"
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object"
+              },
+              "example": {
+                "reactivationToken": "<reactivationToken>"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/auth/email/change": {
+      "post": {
+        "tags": [
+          "3. Account and sessions"
+        ],
+        "summary": "Change my email",
+        "description": "Sends a confirmation link to the new address. Accounts without a password leave out currentPassword but must have signed in within the last 10 minutes.\n\nFull request/response details: https://github.com/TechElusive/techelusive-authentication/tree/main/docs/endpoints",
+        "operationId": "post_auth_emailChange",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Success"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/Error"
+          },
+          "401": {
+            "$ref": "#/components/responses/Error"
+          },
+          "403": {
+            "$ref": "#/components/responses/Error"
+          },
+          "429": {
+            "$ref": "#/components/responses/Error"
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object"
+              },
+              "example": {
+                "newEmail": "asha.new@example.com",
+                "currentPassword": "correct horse battery"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/auth/email/change/confirm": {
+      "post": {
+        "tags": [
+          "3. Account and sessions"
+        ],
+        "summary": "Confirm email change (token from inbox)",
+        "description": "Switches the email and tells the old address. Afterwards set the email variable to asha.new@example.com to keep signing in.\n\nFull request/response details: https://github.com/TechElusive/techelusive-authentication/tree/main/docs/endpoints",
+        "operationId": "post_auth_emailChangeConfirm",
+        "security": [],
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Success"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/Error"
+          },
+          "401": {
+            "$ref": "#/components/responses/Error"
+          },
+          "403": {
+            "$ref": "#/components/responses/Error"
+          },
+          "429": {
+            "$ref": "#/components/responses/Error"
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object"
+              },
+              "example": {
+                "token": "<emailChangeToken>"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/auth/me/export": {
+      "get": {
+        "tags": [
+          "3. Account and sessions"
+        ],
+        "summary": "Download my data",
+        "description": "Full request/response details: https://github.com/TechElusive/techelusive-authentication/tree/main/docs/endpoints",
+        "operationId": "get_auth_exportMyData",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Success"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/Error"
+          },
+          "401": {
+            "$ref": "#/components/responses/Error"
+          },
+          "403": {
+            "$ref": "#/components/responses/Error"
+          },
+          "429": {
+            "$ref": "#/components/responses/Error"
+          }
+        }
+      }
+    },
+    "/auth/health": {
+      "get": {
+        "tags": [
+          "3. Account and sessions"
+        ],
+        "summary": "Health check",
+        "description": "200 when the database (and Redis, if used) answer, 503 otherwise.\n\nFull request/response details: https://github.com/TechElusive/techelusive-authentication/tree/main/docs/endpoints",
+        "operationId": "get_auth_health",
+        "security": [],
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Success"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/Error"
+          },
+          "401": {
+            "$ref": "#/components/responses/Error"
+          },
+          "403": {
+            "$ref": "#/components/responses/Error"
+          },
+          "429": {
+            "$ref": "#/components/responses/Error"
+          }
+        }
+      }
+    },
+    "/auth/2fa": {
+      "get": {
+        "tags": [
+          "4. Two-factor"
+        ],
+        "summary": "2FA status",
+        "description": "Full request/response details: https://github.com/TechElusive/techelusive-authentication/tree/main/docs/endpoints",
+        "operationId": "get_twoFactor_prefix",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Success"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/Error"
+          },
+          "401": {
+            "$ref": "#/components/responses/Error"
+          },
+          "403": {
+            "$ref": "#/components/responses/Error"
+          },
+          "429": {
+            "$ref": "#/components/responses/Error"
+          }
+        }
+      }
+    },
+    "/auth/2fa/setup": {
+      "post": {
+        "tags": [
+          "4. Two-factor"
+        ],
+        "summary": "Start 2FA setup",
+        "description": "Saves the secret. Scan authenticatorAppUrl with Google/Microsoft Authenticator if you want a real app too.\n\nFull request/response details: https://github.com/TechElusive/techelusive-authentication/tree/main/docs/endpoints",
+        "operationId": "post_twoFactor_setup",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Success"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/Error"
+          },
+          "401": {
+            "$ref": "#/components/responses/Error"
+          },
+          "403": {
+            "$ref": "#/components/responses/Error"
+          },
+          "429": {
+            "$ref": "#/components/responses/Error"
+          }
+        }
+      }
+    },
+    "/auth/2fa/enable": {
+      "post": {
+        "tags": [
+          "4. Two-factor"
+        ],
+        "summary": "Enable 2FA (code computed for you)",
+        "description": "Full request/response details: https://github.com/TechElusive/techelusive-authentication/tree/main/docs/endpoints",
+        "operationId": "post_twoFactor_enable",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Success"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/Error"
+          },
+          "401": {
+            "$ref": "#/components/responses/Error"
+          },
+          "403": {
+            "$ref": "#/components/responses/Error"
+          },
+          "429": {
+            "$ref": "#/components/responses/Error"
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object"
+              },
+              "example": {
+                "code": "<totpCode>"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/auth/2fa/verify": {
+      "post": {
+        "tags": [
+          "4. Two-factor"
+        ],
+        "summary": "Verify 2FA sign-in",
+        "description": "A code works only once: wait for the next 30-second window before reusing, or put <backupCode> in \"code\".\n\nFull request/response details: https://github.com/TechElusive/techelusive-authentication/tree/main/docs/endpoints",
+        "operationId": "post_twoFactor_verify",
+        "security": [],
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Success"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/Error"
+          },
+          "401": {
+            "$ref": "#/components/responses/Error"
+          },
+          "403": {
+            "$ref": "#/components/responses/Error"
+          },
+          "429": {
+            "$ref": "#/components/responses/Error"
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object"
+              },
+              "example": {
+                "challengeToken": "<challengeToken>",
+                "code": "<totpCode>"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/auth/2fa/backup-codes": {
+      "post": {
+        "tags": [
+          "4. Two-factor"
+        ],
+        "summary": "New backup codes",
+        "description": "Full request/response details: https://github.com/TechElusive/techelusive-authentication/tree/main/docs/endpoints",
+        "operationId": "post_twoFactor_backupCodes",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Success"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/Error"
+          },
+          "401": {
+            "$ref": "#/components/responses/Error"
+          },
+          "403": {
+            "$ref": "#/components/responses/Error"
+          },
+          "429": {
+            "$ref": "#/components/responses/Error"
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object"
+              },
+              "example": {
+                "code": "<totpCode>"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/auth/2fa/disable": {
+      "post": {
+        "tags": [
+          "4. Two-factor"
+        ],
+        "summary": "Disable 2FA",
+        "description": "Full request/response details: https://github.com/TechElusive/techelusive-authentication/tree/main/docs/endpoints",
+        "operationId": "post_twoFactor_disable",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Success"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/Error"
+          },
+          "401": {
+            "$ref": "#/components/responses/Error"
+          },
+          "403": {
+            "$ref": "#/components/responses/Error"
+          },
+          "429": {
+            "$ref": "#/components/responses/Error"
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object"
+              },
+              "example": {
+                "code": "<totpCode>"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/auth/social/{provider}": {
+      "post": {
+        "tags": [
+          "5. Social sign-in"
+        ],
+        "summary": "Sign in with provider",
+        "description": "Easiest with the \"Sign in with Google\" button on the dev dashboard. In Postman, paste a real ID token into paste-the-provider-token-here.\n\nFull request/response details: https://github.com/TechElusive/techelusive-authentication/tree/main/docs/endpoints",
+        "operationId": "post_social_signIn",
+        "security": [],
+        "parameters": [
+          {
+            "name": "provider",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Success"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/Error"
+          },
+          "401": {
+            "$ref": "#/components/responses/Error"
+          },
+          "403": {
+            "$ref": "#/components/responses/Error"
+          },
+          "429": {
+            "$ref": "#/components/responses/Error"
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object"
+              },
+              "example": {
+                "token": "paste-the-provider-token-here",
+                "firstName": "Asha",
+                "lastName": "Rao",
+                "acceptTerms": true,
+                "acceptPrivacyPolicy": true
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "5. Social sign-in"
+        ],
+        "summary": "Unlink provider",
+        "description": "Full request/response details: https://github.com/TechElusive/techelusive-authentication/tree/main/docs/endpoints",
+        "operationId": "delete_social_unlink",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "provider",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Success"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/Error"
+          },
+          "401": {
+            "$ref": "#/components/responses/Error"
+          },
+          "403": {
+            "$ref": "#/components/responses/Error"
+          },
+          "429": {
+            "$ref": "#/components/responses/Error"
+          }
+        }
+      }
+    },
+    "/auth/social/{provider}/link": {
+      "post": {
+        "tags": [
+          "5. Social sign-in"
+        ],
+        "summary": "Link provider",
+        "description": "Full request/response details: https://github.com/TechElusive/techelusive-authentication/tree/main/docs/endpoints",
+        "operationId": "post_social_link",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "provider",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Success"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/Error"
+          },
+          "401": {
+            "$ref": "#/components/responses/Error"
+          },
+          "403": {
+            "$ref": "#/components/responses/Error"
+          },
+          "429": {
+            "$ref": "#/components/responses/Error"
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object"
+              },
+              "example": {
+                "token": "paste-the-provider-token-here"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/auth/passkeys/register/options": {
+      "post": {
+        "tags": [
+          "6. Passkeys"
+        ],
+        "summary": "Registration options",
+        "description": "Passkeys need a browser or phone: use the Passkeys panel on the dev dashboard. These requests show the raw options.\n\nFull request/response details: https://github.com/TechElusive/techelusive-authentication/tree/main/docs/endpoints",
+        "operationId": "post_passkeys_registerOptions",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Success"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/Error"
+          },
+          "401": {
+            "$ref": "#/components/responses/Error"
+          },
+          "403": {
+            "$ref": "#/components/responses/Error"
+          },
+          "429": {
+            "$ref": "#/components/responses/Error"
+          }
+        }
+      }
+    },
+    "/auth/passkeys/sign-in/options": {
+      "post": {
+        "tags": [
+          "6. Passkeys"
+        ],
+        "summary": "Sign-in options",
+        "description": "Full request/response details: https://github.com/TechElusive/techelusive-authentication/tree/main/docs/endpoints",
+        "operationId": "post_passkeys_signInOptions",
+        "security": [],
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Success"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/Error"
+          },
+          "401": {
+            "$ref": "#/components/responses/Error"
+          },
+          "403": {
+            "$ref": "#/components/responses/Error"
+          },
+          "429": {
+            "$ref": "#/components/responses/Error"
+          }
+        }
+      }
+    },
+    "/auth/passkeys/register/verify": {
+      "post": {
+        "tags": [
+          "6. Passkeys"
+        ],
+        "summary": "Register passkey (from browser response)",
+        "description": "Full request/response details: https://github.com/TechElusive/techelusive-authentication/tree/main/docs/endpoints",
+        "operationId": "post_passkeys_registerVerify",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Success"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/Error"
+          },
+          "401": {
+            "$ref": "#/components/responses/Error"
+          },
+          "403": {
+            "$ref": "#/components/responses/Error"
+          },
+          "429": {
+            "$ref": "#/components/responses/Error"
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object"
+              },
+              "example": {
+                "challengeToken": "<challengeToken>",
+                "name": "My laptop",
+                "response": {}
+              }
+            }
+          }
+        }
+      }
+    },
+    "/auth/passkeys/sign-in/verify": {
+      "post": {
+        "tags": [
+          "6. Passkeys"
+        ],
+        "summary": "Sign in with passkey (from browser response)",
+        "description": "Full request/response details: https://github.com/TechElusive/techelusive-authentication/tree/main/docs/endpoints",
+        "operationId": "post_passkeys_signInVerify",
+        "security": [],
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Success"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/Error"
+          },
+          "401": {
+            "$ref": "#/components/responses/Error"
+          },
+          "403": {
+            "$ref": "#/components/responses/Error"
+          },
+          "429": {
+            "$ref": "#/components/responses/Error"
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object"
+              },
+              "example": {
+                "challengeToken": "<challengeToken>",
+                "response": {}
+              }
+            }
+          }
+        }
+      }
+    },
+    "/auth/passkeys": {
+      "get": {
+        "tags": [
+          "6. Passkeys"
+        ],
+        "summary": "List my passkeys",
+        "description": "Full request/response details: https://github.com/TechElusive/techelusive-authentication/tree/main/docs/endpoints",
+        "operationId": "get_passkeys_prefix",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Success"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/Error"
+          },
+          "401": {
+            "$ref": "#/components/responses/Error"
+          },
+          "403": {
+            "$ref": "#/components/responses/Error"
+          },
+          "429": {
+            "$ref": "#/components/responses/Error"
+          }
+        }
+      }
+    },
+    "/auth/passkeys/{passkeyId}": {
+      "patch": {
+        "tags": [
+          "6. Passkeys"
+        ],
+        "summary": "Rename passkey",
+        "description": "Full request/response details: https://github.com/TechElusive/techelusive-authentication/tree/main/docs/endpoints",
+        "operationId": "patch_passkeys_passkey",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "passkeyId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Success"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/Error"
+          },
+          "401": {
+            "$ref": "#/components/responses/Error"
+          },
+          "403": {
+            "$ref": "#/components/responses/Error"
+          },
+          "429": {
+            "$ref": "#/components/responses/Error"
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object"
+              },
+              "example": {
+                "name": "Work laptop"
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "6. Passkeys"
+        ],
+        "summary": "Remove passkey",
+        "description": "Full request/response details: https://github.com/TechElusive/techelusive-authentication/tree/main/docs/endpoints",
+        "operationId": "delete_passkeys_passkey",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "passkeyId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Success"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/Error"
+          },
+          "401": {
+            "$ref": "#/components/responses/Error"
+          },
+          "403": {
+            "$ref": "#/components/responses/Error"
+          },
+          "429": {
+            "$ref": "#/components/responses/Error"
+          }
+        }
+      }
+    },
+    "/auth/organizations": {
+      "post": {
+        "tags": [
+          "7. Organizations"
+        ],
+        "summary": "Create organization",
+        "description": "Full request/response details: https://github.com/TechElusive/techelusive-authentication/tree/main/docs/endpoints",
+        "operationId": "post_organizations_prefix",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [],
+        "responses": {
+          "201": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Success"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/Error"
+          },
+          "401": {
+            "$ref": "#/components/responses/Error"
+          },
+          "403": {
+            "$ref": "#/components/responses/Error"
+          },
+          "429": {
+            "$ref": "#/components/responses/Error"
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object"
+              },
+              "example": {
+                "name": "Acme Travels",
+                "slug": "acme-travels"
+              }
+            }
+          }
+        }
+      },
+      "get": {
+        "tags": [
+          "7. Organizations"
+        ],
+        "summary": "My organizations",
+        "description": "Full request/response details: https://github.com/TechElusive/techelusive-authentication/tree/main/docs/endpoints",
+        "operationId": "get_organizations_prefix",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Success"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/Error"
+          },
+          "401": {
+            "$ref": "#/components/responses/Error"
+          },
+          "403": {
+            "$ref": "#/components/responses/Error"
+          },
+          "429": {
+            "$ref": "#/components/responses/Error"
+          }
+        }
+      }
+    },
+    "/auth/organizations/{organizationId}": {
+      "get": {
+        "tags": [
+          "7. Organizations"
+        ],
+        "summary": "Get organization",
+        "description": "Full request/response details: https://github.com/TechElusive/techelusive-authentication/tree/main/docs/endpoints",
+        "operationId": "get_organizations_organization",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "organizationId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Success"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/Error"
+          },
+          "401": {
+            "$ref": "#/components/responses/Error"
+          },
+          "403": {
+            "$ref": "#/components/responses/Error"
+          },
+          "429": {
+            "$ref": "#/components/responses/Error"
+          }
+        }
+      },
+      "patch": {
+        "tags": [
+          "7. Organizations"
+        ],
+        "summary": "Update organization",
+        "description": "Full request/response details: https://github.com/TechElusive/techelusive-authentication/tree/main/docs/endpoints",
+        "operationId": "patch_organizations_organization",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "organizationId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Success"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/Error"
+          },
+          "401": {
+            "$ref": "#/components/responses/Error"
+          },
+          "403": {
+            "$ref": "#/components/responses/Error"
+          },
+          "429": {
+            "$ref": "#/components/responses/Error"
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object"
+              },
+              "example": {
+                "name": "Acme Travels India",
+                "metadata": {
+                  "city": "Bengaluru"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "7. Organizations"
+        ],
+        "summary": "Delete organization",
+        "description": "Full request/response details: https://github.com/TechElusive/techelusive-authentication/tree/main/docs/endpoints",
+        "operationId": "delete_organizations_organization",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "organizationId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Success"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/Error"
+          },
+          "401": {
+            "$ref": "#/components/responses/Error"
+          },
+          "403": {
+            "$ref": "#/components/responses/Error"
+          },
+          "429": {
+            "$ref": "#/components/responses/Error"
+          }
+        }
+      }
+    },
+    "/auth/organizations/{organizationId}/invitations": {
+      "post": {
+        "tags": [
+          "7. Organizations"
+        ],
+        "summary": "Invite member",
+        "description": "Full request/response details: https://github.com/TechElusive/techelusive-authentication/tree/main/docs/endpoints",
+        "operationId": "post_organizations_invitations",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "organizationId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Success"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/Error"
+          },
+          "401": {
+            "$ref": "#/components/responses/Error"
+          },
+          "403": {
+            "$ref": "#/components/responses/Error"
+          },
+          "429": {
+            "$ref": "#/components/responses/Error"
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object"
+              },
+              "example": {
+                "email": "ravi@example.com",
+                "role": "member"
+              }
+            }
+          }
+        }
+      },
+      "get": {
+        "tags": [
+          "7. Organizations"
+        ],
+        "summary": "List invitations",
+        "description": "Full request/response details: https://github.com/TechElusive/techelusive-authentication/tree/main/docs/endpoints",
+        "operationId": "get_organizations_invitations",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "organizationId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Success"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/Error"
+          },
+          "401": {
+            "$ref": "#/components/responses/Error"
+          },
+          "403": {
+            "$ref": "#/components/responses/Error"
+          },
+          "429": {
+            "$ref": "#/components/responses/Error"
+          }
+        }
+      }
+    },
+    "/auth/organizations/invitations/accept": {
+      "post": {
+        "tags": [
+          "7. Organizations"
+        ],
+        "summary": "Accept invitation (as invited user)",
+        "description": "Sign in as ravi@example.com first (e.g. \"Passwordless > Verify email code\"), so the access token is theirs.\n\nFull request/response details: https://github.com/TechElusive/techelusive-authentication/tree/main/docs/endpoints",
+        "operationId": "post_organizations_acceptInvitation",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Success"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/Error"
+          },
+          "401": {
+            "$ref": "#/components/responses/Error"
+          },
+          "403": {
+            "$ref": "#/components/responses/Error"
+          },
+          "429": {
+            "$ref": "#/components/responses/Error"
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object"
+              },
+              "example": {
+                "token": "<invitationToken>"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/auth/organizations/{organizationId}/members": {
+      "get": {
+        "tags": [
+          "7. Organizations"
+        ],
+        "summary": "List members",
+        "description": "Full request/response details: https://github.com/TechElusive/techelusive-authentication/tree/main/docs/endpoints",
+        "operationId": "get_organizations_members",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "organizationId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Success"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/Error"
+          },
+          "401": {
+            "$ref": "#/components/responses/Error"
+          },
+          "403": {
+            "$ref": "#/components/responses/Error"
+          },
+          "429": {
+            "$ref": "#/components/responses/Error"
+          }
+        }
+      }
+    },
+    "/auth/organizations/{organizationId}/members/{memberUserId}": {
+      "patch": {
+        "tags": [
+          "7. Organizations"
+        ],
+        "summary": "Change member role",
+        "description": "Full request/response details: https://github.com/TechElusive/techelusive-authentication/tree/main/docs/endpoints",
+        "operationId": "patch_organizations_member",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "organizationId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "memberUserId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Success"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/Error"
+          },
+          "401": {
+            "$ref": "#/components/responses/Error"
+          },
+          "403": {
+            "$ref": "#/components/responses/Error"
+          },
+          "429": {
+            "$ref": "#/components/responses/Error"
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object"
+              },
+              "example": {
+                "role": "admin"
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "7. Organizations"
+        ],
+        "summary": "Remove member",
+        "description": "Full request/response details: https://github.com/TechElusive/techelusive-authentication/tree/main/docs/endpoints",
+        "operationId": "delete_organizations_member",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "organizationId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "memberUserId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Success"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/Error"
+          },
+          "401": {
+            "$ref": "#/components/responses/Error"
+          },
+          "403": {
+            "$ref": "#/components/responses/Error"
+          },
+          "429": {
+            "$ref": "#/components/responses/Error"
+          }
+        }
+      }
+    },
+    "/auth/organizations/{organizationId}/invitations/{invitationId}": {
+      "delete": {
+        "tags": [
+          "7. Organizations"
+        ],
+        "summary": "Cancel invitation",
+        "description": "Full request/response details: https://github.com/TechElusive/techelusive-authentication/tree/main/docs/endpoints",
+        "operationId": "delete_organizations_invitation",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "organizationId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "invitationId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Success"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/Error"
+          },
+          "401": {
+            "$ref": "#/components/responses/Error"
+          },
+          "403": {
+            "$ref": "#/components/responses/Error"
+          },
+          "429": {
+            "$ref": "#/components/responses/Error"
+          }
+        }
+      }
+    },
+    "/auth/organizations/switch": {
+      "post": {
+        "tags": [
+          "7. Organizations"
+        ],
+        "summary": "Switch active organization",
+        "description": "The new access token carries org_id and org_role (decode it at jwt.io to see).\n\nFull request/response details: https://github.com/TechElusive/techelusive-authentication/tree/main/docs/endpoints",
+        "operationId": "post_organizations_switch",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Success"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/Error"
+          },
+          "401": {
+            "$ref": "#/components/responses/Error"
+          },
+          "403": {
+            "$ref": "#/components/responses/Error"
+          },
+          "429": {
+            "$ref": "#/components/responses/Error"
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object"
+              },
+              "example": {
+                "organizationId": "<organizationId>"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/auth/admin/users": {
+      "get": {
+        "tags": [
+          "8. Admin"
+        ],
+        "summary": "Search users",
+        "description": "Make yourself admin first: dev dashboard > \"Make admin\", then Login again.\n\nRequires an admin (a role listed in settings.admin.adminRoles).\n\nFull request/response details: https://github.com/TechElusive/techelusive-authentication/tree/main/docs/endpoints",
+        "operationId": "get_admin_users",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "search",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "example": "example.com"
+          },
+          {
+            "name": "page",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "example": "1"
+          },
+          {
+            "name": "pageSize",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "example": "20"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Success"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/Error"
+          },
+          "401": {
+            "$ref": "#/components/responses/Error"
+          },
+          "403": {
+            "$ref": "#/components/responses/Error"
+          },
+          "429": {
+            "$ref": "#/components/responses/Error"
+          }
+        }
+      }
+    },
+    "/auth/admin/users/{userId}": {
+      "get": {
+        "tags": [
+          "8. Admin"
+        ],
+        "summary": "Get user details",
+        "description": "Requires an admin (a role listed in settings.admin.adminRoles).\n\nFull request/response details: https://github.com/TechElusive/techelusive-authentication/tree/main/docs/endpoints",
+        "operationId": "get_admin_user",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "userId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Success"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/Error"
+          },
+          "401": {
+            "$ref": "#/components/responses/Error"
+          },
+          "403": {
+            "$ref": "#/components/responses/Error"
+          },
+          "429": {
+            "$ref": "#/components/responses/Error"
+          }
+        }
+      },
+      "patch": {
+        "tags": [
+          "8. Admin"
+        ],
+        "summary": "Update user",
+        "description": "Requires an admin (a role listed in settings.admin.adminRoles).\n\nFull request/response details: https://github.com/TechElusive/techelusive-authentication/tree/main/docs/endpoints",
+        "operationId": "patch_admin_user",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "userId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Success"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/Error"
+          },
+          "401": {
+            "$ref": "#/components/responses/Error"
+          },
+          "403": {
+            "$ref": "#/components/responses/Error"
+          },
+          "429": {
+            "$ref": "#/components/responses/Error"
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object"
+              },
+              "example": {
+                "metadata": {
+                  "kycStatus": "approved"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "8. Admin"
+        ],
+        "summary": "Delete user",
+        "description": "Uses <userId>: careful, that is you unless you change it.\n\nRequires an admin (a role listed in settings.admin.adminRoles).\n\nFull request/response details: https://github.com/TechElusive/techelusive-authentication/tree/main/docs/endpoints",
+        "operationId": "delete_admin_user",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "userId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Success"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/Error"
+          },
+          "401": {
+            "$ref": "#/components/responses/Error"
+          },
+          "403": {
+            "$ref": "#/components/responses/Error"
+          },
+          "429": {
+            "$ref": "#/components/responses/Error"
+          }
+        }
+      }
+    },
+    "/auth/admin/users/{userId}/roles": {
+      "put": {
+        "tags": [
+          "8. Admin"
+        ],
+        "summary": "Set roles",
+        "description": "Requires an admin (a role listed in settings.admin.adminRoles).\n\nFull request/response details: https://github.com/TechElusive/techelusive-authentication/tree/main/docs/endpoints",
+        "operationId": "put_admin_userRoles",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "userId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Success"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/Error"
+          },
+          "401": {
+            "$ref": "#/components/responses/Error"
+          },
+          "403": {
+            "$ref": "#/components/responses/Error"
+          },
+          "429": {
+            "$ref": "#/components/responses/Error"
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object"
+              },
+              "example": {
+                "roles": [
+                  "user",
+                  "admin"
+                ]
+              }
+            }
+          }
+        }
+      }
+    },
+    "/auth/admin/users/{userId}/suspend": {
+      "post": {
+        "tags": [
+          "8. Admin"
+        ],
+        "summary": "Suspend user",
+        "description": "Requires an admin (a role listed in settings.admin.adminRoles).\n\nFull request/response details: https://github.com/TechElusive/techelusive-authentication/tree/main/docs/endpoints",
+        "operationId": "post_admin_userSuspend",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "userId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Success"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/Error"
+          },
+          "401": {
+            "$ref": "#/components/responses/Error"
+          },
+          "403": {
+            "$ref": "#/components/responses/Error"
+          },
+          "429": {
+            "$ref": "#/components/responses/Error"
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object"
+              },
+              "example": {
+                "reason": "Manual test"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/auth/admin/users/{userId}/unsuspend": {
+      "post": {
+        "tags": [
+          "8. Admin"
+        ],
+        "summary": "Unsuspend user",
+        "description": "Requires an admin (a role listed in settings.admin.adminRoles).\n\nFull request/response details: https://github.com/TechElusive/techelusive-authentication/tree/main/docs/endpoints",
+        "operationId": "post_admin_userUnsuspend",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "userId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Success"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/Error"
+          },
+          "401": {
+            "$ref": "#/components/responses/Error"
+          },
+          "403": {
+            "$ref": "#/components/responses/Error"
+          },
+          "429": {
+            "$ref": "#/components/responses/Error"
+          }
+        }
+      }
+    },
+    "/auth/admin/users/{userId}/verify-email": {
+      "post": {
+        "tags": [
+          "8. Admin"
+        ],
+        "summary": "Verify user email",
+        "description": "Requires an admin (a role listed in settings.admin.adminRoles).\n\nFull request/response details: https://github.com/TechElusive/techelusive-authentication/tree/main/docs/endpoints",
+        "operationId": "post_admin_userVerifyEmail",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "userId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Success"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/Error"
+          },
+          "401": {
+            "$ref": "#/components/responses/Error"
+          },
+          "403": {
+            "$ref": "#/components/responses/Error"
+          },
+          "429": {
+            "$ref": "#/components/responses/Error"
+          }
+        }
+      }
+    },
+    "/auth/admin/users/{userId}/reset-2fa": {
+      "post": {
+        "tags": [
+          "8. Admin"
+        ],
+        "summary": "Reset user 2FA",
+        "description": "Requires an admin (a role listed in settings.admin.adminRoles).\n\nFull request/response details: https://github.com/TechElusive/techelusive-authentication/tree/main/docs/endpoints",
+        "operationId": "post_admin_userResetTwoFactor",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "userId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Success"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/Error"
+          },
+          "401": {
+            "$ref": "#/components/responses/Error"
+          },
+          "403": {
+            "$ref": "#/components/responses/Error"
+          },
+          "429": {
+            "$ref": "#/components/responses/Error"
+          }
+        }
+      }
+    },
+    "/auth/admin/users/{userId}/logout-all": {
+      "post": {
+        "tags": [
+          "8. Admin"
+        ],
+        "summary": "Sign user out everywhere",
+        "description": "Requires an admin (a role listed in settings.admin.adminRoles).\n\nFull request/response details: https://github.com/TechElusive/techelusive-authentication/tree/main/docs/endpoints",
+        "operationId": "post_admin_userLogoutAll",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "userId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Success"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/Error"
+          },
+          "401": {
+            "$ref": "#/components/responses/Error"
+          },
+          "403": {
+            "$ref": "#/components/responses/Error"
+          },
+          "429": {
+            "$ref": "#/components/responses/Error"
+          }
+        }
+      }
+    },
+    "/auth/admin/settings": {
+      "get": {
+        "tags": [
+          "8. Admin"
+        ],
+        "summary": "Get settings",
+        "description": "Requires an admin (a role listed in settings.admin.adminRoles).\n\nFull request/response details: https://github.com/TechElusive/techelusive-authentication/tree/main/docs/endpoints",
+        "operationId": "get_admin_settings",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Success"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/Error"
+          },
+          "401": {
+            "$ref": "#/components/responses/Error"
+          },
+          "403": {
+            "$ref": "#/components/responses/Error"
+          },
+          "429": {
+            "$ref": "#/components/responses/Error"
+          }
+        }
+      },
+      "patch": {
+        "tags": [
+          "8. Admin"
+        ],
+        "summary": "Change settings",
+        "description": "Requires an admin (a role listed in settings.admin.adminRoles).\n\nFull request/response details: https://github.com/TechElusive/techelusive-authentication/tree/main/docs/endpoints",
+        "operationId": "patch_admin_settings",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Success"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/Error"
+          },
+          "401": {
+            "$ref": "#/components/responses/Error"
+          },
+          "403": {
+            "$ref": "#/components/responses/Error"
+          },
+          "429": {
+            "$ref": "#/components/responses/Error"
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object"
+              },
+              "example": {
+                "magicLink": {
+                  "enabled": true
+                },
+                "security": {
+                  "notifyOnNewSignIn": true
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "8. Admin"
+        ],
+        "summary": "Reset settings to code defaults",
+        "description": "Requires an admin (a role listed in settings.admin.adminRoles).\n\nFull request/response details: https://github.com/TechElusive/techelusive-authentication/tree/main/docs/endpoints",
+        "operationId": "delete_admin_settings",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Success"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/Error"
+          },
+          "401": {
+            "$ref": "#/components/responses/Error"
+          },
+          "403": {
+            "$ref": "#/components/responses/Error"
+          },
+          "429": {
+            "$ref": "#/components/responses/Error"
+          }
+        }
+      }
+    },
+    "/auth/admin/audit-log": {
+      "get": {
+        "tags": [
+          "8. Admin"
+        ],
+        "summary": "Audit log",
+        "description": "Requires an admin (a role listed in settings.admin.adminRoles).\n\nFull request/response details: https://github.com/TechElusive/techelusive-authentication/tree/main/docs/endpoints",
+        "operationId": "get_admin_auditLog",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "page",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "example": "1"
+          },
+          {
+            "name": "pageSize",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "example": "20"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Success"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/Error"
+          },
+          "401": {
+            "$ref": "#/components/responses/Error"
+          },
+          "403": {
+            "$ref": "#/components/responses/Error"
+          },
+          "429": {
+            "$ref": "#/components/responses/Error"
+          }
+        }
+      }
+    },
+    "/auth/admin/stats": {
+      "get": {
+        "tags": [
+          "8. Admin"
+        ],
+        "summary": "Stats",
+        "description": "Requires an admin (a role listed in settings.admin.adminRoles).\n\nFull request/response details: https://github.com/TechElusive/techelusive-authentication/tree/main/docs/endpoints",
+        "operationId": "get_admin_stats",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Success"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/Error"
+          },
+          "401": {
+            "$ref": "#/components/responses/Error"
+          },
+          "403": {
+            "$ref": "#/components/responses/Error"
+          },
+          "429": {
+            "$ref": "#/components/responses/Error"
+          }
+        }
+      }
+    },
+    "/auth/admin/maintenance/cleanup": {
+      "post": {
+        "tags": [
+          "8. Admin"
+        ],
+        "summary": "Run data cleanup now",
+        "description": "Deletes rows older than settings.retention allows (it also runs every hour). Returns how many rows each step removed.\n\nRequires an admin (a role listed in settings.admin.adminRoles).\n\nFull request/response details: https://github.com/TechElusive/techelusive-authentication/tree/main/docs/endpoints",
+        "operationId": "post_admin_runCleanup",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Success"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/Error"
+          },
+          "401": {
+            "$ref": "#/components/responses/Error"
+          },
+          "403": {
+            "$ref": "#/components/responses/Error"
+          },
+          "429": {
+            "$ref": "#/components/responses/Error"
+          }
+        }
+      }
+    },
+    "/auth/admin/signing-keys/rotate": {
+      "post": {
+        "tags": [
+          "8. Admin"
+        ],
+        "summary": "Rotate signing key",
+        "description": "Requires an admin (a role listed in settings.admin.adminRoles).\n\nFull request/response details: https://github.com/TechElusive/techelusive-authentication/tree/main/docs/endpoints",
+        "operationId": "post_admin_rotateSigningKey",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Success"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/Error"
+          },
+          "401": {
+            "$ref": "#/components/responses/Error"
+          },
+          "403": {
+            "$ref": "#/components/responses/Error"
+          },
+          "429": {
+            "$ref": "#/components/responses/Error"
+          }
+        }
+      }
+    },
+    "/auth/admin/api-keys": {
+      "post": {
+        "tags": [
+          "8. Admin"
+        ],
+        "summary": "Create API key",
+        "description": "Requires an admin (a role listed in settings.admin.adminRoles).\n\nFull request/response details: https://github.com/TechElusive/techelusive-authentication/tree/main/docs/endpoints",
+        "operationId": "post_admin_apiKeys",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [],
+        "responses": {
+          "201": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Success"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/Error"
+          },
+          "401": {
+            "$ref": "#/components/responses/Error"
+          },
+          "403": {
+            "$ref": "#/components/responses/Error"
+          },
+          "429": {
+            "$ref": "#/components/responses/Error"
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object"
+              },
+              "example": {
+                "name": "Postman test key",
+                "scopes": [
+                  "rides:read"
+                ]
+              }
+            }
+          }
+        }
+      },
+      "get": {
+        "tags": [
+          "8. Admin"
+        ],
+        "summary": "List API keys",
+        "description": "Requires an admin (a role listed in settings.admin.adminRoles).\n\nFull request/response details: https://github.com/TechElusive/techelusive-authentication/tree/main/docs/endpoints",
+        "operationId": "get_admin_apiKeys",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Success"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/Error"
+          },
+          "401": {
+            "$ref": "#/components/responses/Error"
+          },
+          "403": {
+            "$ref": "#/components/responses/Error"
+          },
+          "429": {
+            "$ref": "#/components/responses/Error"
+          }
+        }
+      }
+    },
+    "/auth/admin/api-keys/{apiKeyId}": {
+      "delete": {
+        "tags": [
+          "8. Admin"
+        ],
+        "summary": "Revoke API key",
+        "description": "Requires an admin (a role listed in settings.admin.adminRoles).\n\nFull request/response details: https://github.com/TechElusive/techelusive-authentication/tree/main/docs/endpoints",
+        "operationId": "delete_admin_apiKey",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "apiKeyId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Success"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/Error"
+          },
+          "401": {
+            "$ref": "#/components/responses/Error"
+          },
+          "403": {
+            "$ref": "#/components/responses/Error"
+          },
+          "429": {
+            "$ref": "#/components/responses/Error"
+          }
+        }
+      }
+    },
+    "/auth/admin/webhooks": {
+      "post": {
+        "tags": [
+          "8. Admin"
+        ],
+        "summary": "Create webhook (to the playground receiver)",
+        "description": "Deliveries appear on the dev dashboard with their signature check result.\n\nRequires an admin (a role listed in settings.admin.adminRoles).\n\nFull request/response details: https://github.com/TechElusive/techelusive-authentication/tree/main/docs/endpoints",
+        "operationId": "post_admin_webhooks",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [],
+        "responses": {
+          "201": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Success"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/Error"
+          },
+          "401": {
+            "$ref": "#/components/responses/Error"
+          },
+          "403": {
+            "$ref": "#/components/responses/Error"
+          },
+          "429": {
+            "$ref": "#/components/responses/Error"
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object"
+              },
+              "example": {
+                "url": "http://localhost:3000/dev/webhook-receiver",
+                "eventNames": [],
+                "description": "Playground receiver"
+              }
+            }
+          }
+        }
+      },
+      "get": {
+        "tags": [
+          "8. Admin"
+        ],
+        "summary": "List webhooks",
+        "description": "Requires an admin (a role listed in settings.admin.adminRoles).\n\nFull request/response details: https://github.com/TechElusive/techelusive-authentication/tree/main/docs/endpoints",
+        "operationId": "get_admin_webhooks",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Success"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/Error"
+          },
+          "401": {
+            "$ref": "#/components/responses/Error"
+          },
+          "403": {
+            "$ref": "#/components/responses/Error"
+          },
+          "429": {
+            "$ref": "#/components/responses/Error"
+          }
+        }
+      }
+    },
+    "/auth/admin/webhooks/{webhookId}": {
+      "patch": {
+        "tags": [
+          "8. Admin"
+        ],
+        "summary": "Update webhook",
+        "description": "Requires an admin (a role listed in settings.admin.adminRoles).\n\nFull request/response details: https://github.com/TechElusive/techelusive-authentication/tree/main/docs/endpoints",
+        "operationId": "patch_admin_webhook",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "webhookId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Success"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/Error"
+          },
+          "401": {
+            "$ref": "#/components/responses/Error"
+          },
+          "403": {
+            "$ref": "#/components/responses/Error"
+          },
+          "429": {
+            "$ref": "#/components/responses/Error"
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object"
+              },
+              "example": {
+                "eventNames": [
+                  "user.signed_in",
+                  "user.created"
+                ]
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "8. Admin"
+        ],
+        "summary": "Delete webhook",
+        "description": "Requires an admin (a role listed in settings.admin.adminRoles).\n\nFull request/response details: https://github.com/TechElusive/techelusive-authentication/tree/main/docs/endpoints",
+        "operationId": "delete_admin_webhook",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "webhookId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Success"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/Error"
+          },
+          "401": {
+            "$ref": "#/components/responses/Error"
+          },
+          "403": {
+            "$ref": "#/components/responses/Error"
+          },
+          "429": {
+            "$ref": "#/components/responses/Error"
+          }
+        }
+      }
+    },
+    "/auth/admin/webhooks/{webhookId}/test": {
+      "post": {
+        "tags": [
+          "8. Admin"
+        ],
+        "summary": "Send test delivery",
+        "description": "Requires an admin (a role listed in settings.admin.adminRoles).\n\nFull request/response details: https://github.com/TechElusive/techelusive-authentication/tree/main/docs/endpoints",
+        "operationId": "post_admin_webhookTest",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "webhookId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Success"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/Error"
+          },
+          "401": {
+            "$ref": "#/components/responses/Error"
+          },
+          "403": {
+            "$ref": "#/components/responses/Error"
+          },
+          "429": {
+            "$ref": "#/components/responses/Error"
+          }
+        }
+      }
+    },
+    "/auth/admin/webhooks/{webhookId}/deliveries": {
+      "get": {
+        "tags": [
+          "8. Admin"
+        ],
+        "summary": "Webhook deliveries",
+        "description": "Requires an admin (a role listed in settings.admin.adminRoles).\n\nFull request/response details: https://github.com/TechElusive/techelusive-authentication/tree/main/docs/endpoints",
+        "operationId": "get_admin_webhookDeliveries",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "webhookId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Success"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/Error"
+          },
+          "401": {
+            "$ref": "#/components/responses/Error"
+          },
+          "403": {
+            "$ref": "#/components/responses/Error"
+          },
+          "429": {
+            "$ref": "#/components/responses/Error"
+          }
+        }
+      }
+    },
+    "/auth/admin/webhooks/{webhookId}/deliveries/{deliveryId}/retry": {
+      "post": {
+        "tags": [
+          "8. Admin"
+        ],
+        "summary": "Retry delivery",
+        "description": "Requires an admin (a role listed in settings.admin.adminRoles).\n\nFull request/response details: https://github.com/TechElusive/techelusive-authentication/tree/main/docs/endpoints",
+        "operationId": "post_admin_webhookRetryDelivery",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "webhookId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "deliveryId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Success"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/Error"
+          },
+          "401": {
+            "$ref": "#/components/responses/Error"
+          },
+          "403": {
+            "$ref": "#/components/responses/Error"
+          },
+          "429": {
+            "$ref": "#/components/responses/Error"
+          }
+        }
+      }
+    },
+    "/auth/admin/webhooks/{webhookId}/rotate-secret": {
+      "post": {
+        "tags": [
+          "8. Admin"
+        ],
+        "summary": "Rotate webhook secret",
+        "description": "Requires an admin (a role listed in settings.admin.adminRoles).\n\nFull request/response details: https://github.com/TechElusive/techelusive-authentication/tree/main/docs/endpoints",
+        "operationId": "post_admin_webhookRotateSecret",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "webhookId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Success"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/Error"
+          },
+          "401": {
+            "$ref": "#/components/responses/Error"
+          },
+          "403": {
+            "$ref": "#/components/responses/Error"
+          },
+          "429": {
+            "$ref": "#/components/responses/Error"
+          }
+        }
+      }
+    },
+    "/.well-known/jwks.json": {
+      "get": {
+        "tags": [
+          "9. Public keys"
+        ],
+        "summary": "JWKS (public signing keys)",
+        "description": "Full request/response details: https://github.com/TechElusive/techelusive-authentication/tree/main/docs/endpoints",
+        "operationId": "get_wellKnown_jwks",
+        "security": [],
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Success"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/Error"
+          },
+          "401": {
+            "$ref": "#/components/responses/Error"
+          },
+          "403": {
+            "$ref": "#/components/responses/Error"
+          },
+          "429": {
+            "$ref": "#/components/responses/Error"
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "securitySchemes": {
+      "bearerAuth": {
+        "type": "http",
+        "scheme": "bearer",
+        "bearerFormat": "JWT"
+      }
+    },
+    "schemas": {
+      "Success": {
+        "type": "object",
+        "properties": {
+          "success": {
+            "type": "boolean",
+            "example": true
+          }
+        },
+        "additionalProperties": true
+      },
+      "Error": {
+        "type": "object",
+        "properties": {
+          "success": {
+            "type": "boolean",
+            "example": false
+          },
+          "code": {
+            "type": "string",
+            "enum": [
+              "VALIDATION_ERROR",
+              "INVALID_EMAIL",
+              "INVALID_PHONE",
+              "INVALID_PASSWORD",
+              "TERMS_NOT_ACCEPTED",
+              "PRIVACY_POLICY_NOT_ACCEPTED",
+              "EMAIL_DOMAIN_NOT_ALLOWED",
+              "PHONE_COUNTRY_NOT_ALLOWED",
+              "INVALID_CREDENTIALS",
+              "INVALID_OTP",
+              "OTP_EXPIRED",
+              "INVALID_TOKEN",
+              "UNAUTHORIZED",
+              "INVALID_API_KEY",
+              "INVALID_SOCIAL_TOKEN",
+              "INVALID_PASSKEY",
+              "ACCOUNT_NOT_VERIFIED",
+              "ACCOUNT_SUSPENDED",
+              "ACCOUNT_DEACTIVATED",
+              "FORBIDDEN",
+              "SIGN_UP_CLOSED",
+              "SIGN_IN_METHOD_DISABLED",
+              "FEATURE_DISABLED",
+              "NOT_FOUND",
+              "ACCOUNT_ALREADY_EXISTS",
+              "ACCOUNT_EXISTS_WITH_OTHER_METHOD",
+              "SOCIAL_ACCOUNT_IN_USE",
+              "LAST_SIGN_IN_METHOD",
+              "TWO_FACTOR_ALREADY_ENABLED",
+              "TWO_FACTOR_NOT_ENABLED",
+              "TWO_FACTOR_SETUP_NOT_STARTED",
+              "ORGANIZATION_SLUG_TAKEN",
+              "ALREADY_MEMBER",
+              "LAST_OWNER",
+              "ACCOUNT_NOT_DEACTIVATED",
+              "EMAIL_IN_USE",
+              "EMAIL_UNCHANGED",
+              "RECENT_SIGN_IN_REQUIRED",
+              "TOO_MANY_REQUESTS",
+              "INVALID_SETTINGS",
+              "UNSAFE_WEBHOOK_URL",
+              "NOT_CONFIGURED",
+              "INTERNAL_SERVER_ERROR"
+            ]
+          },
+          "message": {
+            "type": "string"
+          }
+        },
+        "additionalProperties": true
+      }
+    },
+    "responses": {
+      "Error": {
+        "description": "Error",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/Error"
+            }
+          }
+        }
+      }
+    }
+  }
+}

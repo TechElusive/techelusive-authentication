@@ -1,0 +1,3178 @@
+{
+  "info": {
+    "name": "@techelusive/nest-auth (local playground)",
+    "description": "Every endpoint of @techelusive/nest-auth.\n\n1. Start the playground (npm run playground) and open http://localhost:3000/dev to watch emails, SMS and events.\n2. Run requests top to bottom inside a folder. Tokens, codes and links are captured automatically into collection variables.\n3. Change {{email}} / {{password}} in the collection variables to test other users.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "auth": {
+    "type": "bearer",
+    "bearer": [
+      {
+        "key": "token",
+        "value": "{{accessToken}}",
+        "type": "string"
+      }
+    ]
+  },
+  "event": [
+    {
+      "listen": "test",
+      "script": {
+        "type": "text/javascript",
+        "exec": [
+          "let body = {};",
+          "try { body = pm.response.json(); } catch (error) { return; }",
+          "pm.test(\"response has a success field\", () => pm.expect(body).to.have.property(\"success\"));",
+          "if (body.success === false) console.log(\"Error code:\", body.code, \"-\", body.message);",
+          "// A deactivated account offers reactivation: keep the token for \"Reactivate\".",
+          "if (body.reactivationToken) pm.collectionVariables.set(\"reactivationToken\", body.reactivationToken);"
+        ]
+      }
+    }
+  ],
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:3000"
+    },
+    {
+      "key": "email",
+      "value": "asha@example.com"
+    },
+    {
+      "key": "password",
+      "value": "correct horse battery"
+    },
+    {
+      "key": "newPassword",
+      "value": "a brand new passphrase"
+    },
+    {
+      "key": "secondEmail",
+      "value": "ravi@example.com"
+    },
+    {
+      "key": "phoneNumber",
+      "value": "+919876543210"
+    },
+    {
+      "key": "provider",
+      "value": "google"
+    },
+    {
+      "key": "socialToken",
+      "value": "paste-the-provider-token-here"
+    },
+    {
+      "key": "accessToken",
+      "value": ""
+    },
+    {
+      "key": "refreshToken",
+      "value": ""
+    },
+    {
+      "key": "sessionId",
+      "value": ""
+    },
+    {
+      "key": "userId",
+      "value": ""
+    },
+    {
+      "key": "challengeToken",
+      "value": ""
+    },
+    {
+      "key": "reactivationToken",
+      "value": ""
+    },
+    {
+      "key": "verificationToken",
+      "value": ""
+    },
+    {
+      "key": "resetToken",
+      "value": ""
+    },
+    {
+      "key": "magicLinkToken",
+      "value": ""
+    },
+    {
+      "key": "emailCode",
+      "value": ""
+    },
+    {
+      "key": "smsCode",
+      "value": ""
+    },
+    {
+      "key": "totpSecret",
+      "value": ""
+    },
+    {
+      "key": "totpCode",
+      "value": ""
+    },
+    {
+      "key": "backupCode",
+      "value": ""
+    },
+    {
+      "key": "invitationToken",
+      "value": ""
+    },
+    {
+      "key": "organizationId",
+      "value": ""
+    },
+    {
+      "key": "memberUserId",
+      "value": ""
+    },
+    {
+      "key": "invitationId",
+      "value": ""
+    },
+    {
+      "key": "passkeyId",
+      "value": ""
+    },
+    {
+      "key": "apiKey",
+      "value": ""
+    },
+    {
+      "key": "apiKeyId",
+      "value": ""
+    },
+    {
+      "key": "webhookId",
+      "value": ""
+    },
+    {
+      "key": "webhookSecret",
+      "value": ""
+    },
+    {
+      "key": "deliveryId",
+      "value": ""
+    },
+    {
+      "key": "organizationSlug",
+      "value": "acme-travels"
+    },
+    {
+      "key": "changedEmail",
+      "value": "asha.new@example.com"
+    },
+    {
+      "key": "emailChangeToken",
+      "value": ""
+    }
+  ],
+  "item": [
+    {
+      "name": "1. Email + password",
+      "item": [
+        {
+          "name": "Register",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const body = pm.response.json();",
+                  "const read = (object, dottedPath) => dottedPath.split(\".\").reduce((value, key) => (value == null ? undefined : value[key]), object);",
+                  "if (read(body, \"accessToken\") !== undefined) { pm.collectionVariables.set(\"accessToken\", read(body, \"accessToken\")); console.log(\"saved accessToken\"); }",
+                  "if (read(body, \"refreshToken\") !== undefined) { pm.collectionVariables.set(\"refreshToken\", read(body, \"refreshToken\")); console.log(\"saved refreshToken\"); }",
+                  "if (read(body, \"sessionId\") !== undefined) { pm.collectionVariables.set(\"sessionId\", read(body, \"sessionId\")); console.log(\"saved sessionId\"); }",
+                  "if (read(body, \"user.id\") !== undefined) { pm.collectionVariables.set(\"userId\", read(body, \"user.id\")); console.log(\"saved userId\"); }",
+                  "if (read(body, \"challengeToken\") !== undefined) { pm.collectionVariables.set(\"challengeToken\", read(body, \"challengeToken\")); console.log(\"saved challengeToken\"); }"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "description": "Default settings: returns verification_required and emails a verification link (see the dev inbox).\n\nFull request/response details: https://github.com/TechElusive/techelusive-authentication/tree/main/docs/endpoints",
+            "auth": {
+              "type": "noauth"
+            },
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/auth/register",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "auth",
+                "register"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"{{email}}\",\n  \"password\": \"{{password}}\",\n  \"firstName\": \"Asha\",\n  \"lastName\": \"Rao\",\n  \"acceptTerms\": true,\n  \"acceptPrivacyPolicy\": true\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "Resend verification email",
+          "event": [],
+          "request": {
+            "method": "POST",
+            "description": "Full request/response details: https://github.com/TechElusive/techelusive-authentication/tree/main/docs/endpoints",
+            "auth": {
+              "type": "noauth"
+            },
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/auth/email/send-verification",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "auth",
+                "email",
+                "send-verification"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"{{email}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "Verify email (token from inbox)",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const to = pm.variables.replaceIn(\"{{email}}\");",
+                  "pm.sendRequest(pm.variables.replaceIn(\"{{baseUrl}}\") + \"/dev/api/inbox/latest?to=\" + encodeURIComponent(to) + \"&type=verify_email\", (error, response) => {",
+                  "  if (error || response.code !== 200) { console.warn(\"No message in the dev inbox yet: send it first.\"); return; }",
+                  "  pm.collectionVariables.set(\"verificationToken\", response.json().token);",
+                  "  console.log(\"verificationToken taken from the dev inbox\");",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "description": "Full request/response details: https://github.com/TechElusive/techelusive-authentication/tree/main/docs/endpoints",
+            "auth": {
+              "type": "noauth"
+            },
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/auth/email/verify",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "auth",
+                "email",
+                "verify"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"token\": \"{{verificationToken}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "Login",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const body = pm.response.json();",
+                  "const read = (object, dottedPath) => dottedPath.split(\".\").reduce((value, key) => (value == null ? undefined : value[key]), object);",
+                  "if (read(body, \"accessToken\") !== undefined) { pm.collectionVariables.set(\"accessToken\", read(body, \"accessToken\")); console.log(\"saved accessToken\"); }",
+                  "if (read(body, \"refreshToken\") !== undefined) { pm.collectionVariables.set(\"refreshToken\", read(body, \"refreshToken\")); console.log(\"saved refreshToken\"); }",
+                  "if (read(body, \"sessionId\") !== undefined) { pm.collectionVariables.set(\"sessionId\", read(body, \"sessionId\")); console.log(\"saved sessionId\"); }",
+                  "if (read(body, \"user.id\") !== undefined) { pm.collectionVariables.set(\"userId\", read(body, \"user.id\")); console.log(\"saved userId\"); }",
+                  "if (read(body, \"challengeToken\") !== undefined) { pm.collectionVariables.set(\"challengeToken\", read(body, \"challengeToken\")); console.log(\"saved challengeToken\"); }"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "description": "Saves accessToken / refreshToken automatically. If 2FA is on, saves challengeToken: then run \"Two-factor > Verify 2FA sign-in\".\n\nFull request/response details: https://github.com/TechElusive/techelusive-authentication/tree/main/docs/endpoints",
+            "auth": {
+              "type": "noauth"
+            },
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/auth/login",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "auth",
+                "login"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"{{email}}\",\n  \"password\": \"{{password}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "Forgot password",
+          "event": [],
+          "request": {
+            "method": "POST",
+            "description": "Full request/response details: https://github.com/TechElusive/techelusive-authentication/tree/main/docs/endpoints",
+            "auth": {
+              "type": "noauth"
+            },
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/auth/password/forgot",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "auth",
+                "password",
+                "forgot"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"{{email}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "Reset password (token from inbox)",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const to = pm.variables.replaceIn(\"{{email}}\");",
+                  "pm.sendRequest(pm.variables.replaceIn(\"{{baseUrl}}\") + \"/dev/api/inbox/latest?to=\" + encodeURIComponent(to) + \"&type=reset_password\", (error, response) => {",
+                  "  if (error || response.code !== 200) { console.warn(\"No message in the dev inbox yet: send it first.\"); return; }",
+                  "  pm.collectionVariables.set(\"resetToken\", response.json().token);",
+                  "  console.log(\"resetToken taken from the dev inbox\");",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "description": "Signs out every device. Afterwards sign in with a brand new passphrase.\n\nFull request/response details: https://github.com/TechElusive/techelusive-authentication/tree/main/docs/endpoints",
+            "auth": {
+              "type": "noauth"
+            },
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/auth/password/reset",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "auth",
+                "password",
+                "reset"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"token\": \"{{resetToken}}\",\n  \"newPassword\": \"{{newPassword}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "Change password",
+          "event": [],
+          "request": {
+            "method": "POST",
+            "description": "Full request/response details: https://github.com/TechElusive/techelusive-authentication/tree/main/docs/endpoints",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/auth/password/change",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "auth",
+                "password",
+                "change"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"currentPassword\": \"{{password}}\",\n  \"newPassword\": \"{{newPassword}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "2. Passwordless",
+      "item": [
+        {
+          "name": "Send email code",
+          "event": [],
+          "request": {
+            "method": "POST",
+            "description": "Needs emailOtp.enabled (the playground turns it on).\n\nFull request/response details: https://github.com/TechElusive/techelusive-authentication/tree/main/docs/endpoints",
+            "auth": {
+              "type": "noauth"
+            },
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/auth/email/send-otp",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "auth",
+                "email",
+                "send-otp"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"{{secondEmail}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "Verify email code (code from inbox)",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const to = pm.variables.replaceIn(\"{{secondEmail}}\");",
+                  "pm.sendRequest(pm.variables.replaceIn(\"{{baseUrl}}\") + \"/dev/api/inbox/latest?to=\" + encodeURIComponent(to) + \"&type=sign_in_code\", (error, response) => {",
+                  "  if (error || response.code !== 200) { console.warn(\"No message in the dev inbox yet: send it first.\"); return; }",
+                  "  pm.collectionVariables.set(\"emailCode\", response.json().code);",
+                  "  console.log(\"emailCode taken from the dev inbox\");",
+                  "});"
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const body = pm.response.json();",
+                  "const read = (object, dottedPath) => dottedPath.split(\".\").reduce((value, key) => (value == null ? undefined : value[key]), object);",
+                  "if (read(body, \"accessToken\") !== undefined) { pm.collectionVariables.set(\"accessToken\", read(body, \"accessToken\")); console.log(\"saved accessToken\"); }",
+                  "if (read(body, \"refreshToken\") !== undefined) { pm.collectionVariables.set(\"refreshToken\", read(body, \"refreshToken\")); console.log(\"saved refreshToken\"); }",
+                  "if (read(body, \"sessionId\") !== undefined) { pm.collectionVariables.set(\"sessionId\", read(body, \"sessionId\")); console.log(\"saved sessionId\"); }",
+                  "if (read(body, \"user.id\") !== undefined) { pm.collectionVariables.set(\"userId\", read(body, \"user.id\")); console.log(\"saved userId\"); }",
+                  "if (read(body, \"challengeToken\") !== undefined) { pm.collectionVariables.set(\"challengeToken\", read(body, \"challengeToken\")); console.log(\"saved challengeToken\"); }"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "description": "Full request/response details: https://github.com/TechElusive/techelusive-authentication/tree/main/docs/endpoints",
+            "auth": {
+              "type": "noauth"
+            },
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/auth/email/verify-otp",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "auth",
+                "email",
+                "verify-otp"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"{{secondEmail}}\",\n  \"code\": \"{{emailCode}}\",\n  \"firstName\": \"Ravi\",\n  \"lastName\": \"Kumar\",\n  \"acceptTerms\": true,\n  \"acceptPrivacyPolicy\": true\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "Send magic link",
+          "event": [],
+          "request": {
+            "method": "POST",
+            "description": "Full request/response details: https://github.com/TechElusive/techelusive-authentication/tree/main/docs/endpoints",
+            "auth": {
+              "type": "noauth"
+            },
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/auth/magic-link/send",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "auth",
+                "magic-link",
+                "send"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"{{secondEmail}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "Verify magic link (token from inbox)",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const to = pm.variables.replaceIn(\"{{secondEmail}}\");",
+                  "pm.sendRequest(pm.variables.replaceIn(\"{{baseUrl}}\") + \"/dev/api/inbox/latest?to=\" + encodeURIComponent(to) + \"&type=magic_sign_in\", (error, response) => {",
+                  "  if (error || response.code !== 200) { console.warn(\"No message in the dev inbox yet: send it first.\"); return; }",
+                  "  pm.collectionVariables.set(\"magicLinkToken\", response.json().token);",
+                  "  console.log(\"magicLinkToken taken from the dev inbox\");",
+                  "});"
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const body = pm.response.json();",
+                  "const read = (object, dottedPath) => dottedPath.split(\".\").reduce((value, key) => (value == null ? undefined : value[key]), object);",
+                  "if (read(body, \"accessToken\") !== undefined) { pm.collectionVariables.set(\"accessToken\", read(body, \"accessToken\")); console.log(\"saved accessToken\"); }",
+                  "if (read(body, \"refreshToken\") !== undefined) { pm.collectionVariables.set(\"refreshToken\", read(body, \"refreshToken\")); console.log(\"saved refreshToken\"); }",
+                  "if (read(body, \"sessionId\") !== undefined) { pm.collectionVariables.set(\"sessionId\", read(body, \"sessionId\")); console.log(\"saved sessionId\"); }",
+                  "if (read(body, \"user.id\") !== undefined) { pm.collectionVariables.set(\"userId\", read(body, \"user.id\")); console.log(\"saved userId\"); }",
+                  "if (read(body, \"challengeToken\") !== undefined) { pm.collectionVariables.set(\"challengeToken\", read(body, \"challengeToken\")); console.log(\"saved challengeToken\"); }"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "description": "Full request/response details: https://github.com/TechElusive/techelusive-authentication/tree/main/docs/endpoints",
+            "auth": {
+              "type": "noauth"
+            },
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/auth/magic-link/verify",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "auth",
+                "magic-link",
+                "verify"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"token\": \"{{magicLinkToken}}\",\n  \"firstName\": \"Ravi\",\n  \"lastName\": \"Kumar\",\n  \"acceptTerms\": true,\n  \"acceptPrivacyPolicy\": true\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "Send phone code",
+          "event": [],
+          "request": {
+            "method": "POST",
+            "description": "The playground delivers SMS to the dev inbox instead of a real phone.\n\nFull request/response details: https://github.com/TechElusive/techelusive-authentication/tree/main/docs/endpoints",
+            "auth": {
+              "type": "noauth"
+            },
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/auth/phone/send-otp",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "auth",
+                "phone",
+                "send-otp"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"phoneNumber\": \"{{phoneNumber}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "Verify phone code (code from inbox)",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const to = pm.variables.replaceIn(\"{{phoneNumber}}\");",
+                  "pm.sendRequest(pm.variables.replaceIn(\"{{baseUrl}}\") + \"/dev/api/inbox/latest?to=\" + encodeURIComponent(to) + \"&type=sms_code\", (error, response) => {",
+                  "  if (error || response.code !== 200) { console.warn(\"No message in the dev inbox yet: send it first.\"); return; }",
+                  "  pm.collectionVariables.set(\"smsCode\", response.json().code);",
+                  "  console.log(\"smsCode taken from the dev inbox\");",
+                  "});"
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const body = pm.response.json();",
+                  "const read = (object, dottedPath) => dottedPath.split(\".\").reduce((value, key) => (value == null ? undefined : value[key]), object);",
+                  "if (read(body, \"accessToken\") !== undefined) { pm.collectionVariables.set(\"accessToken\", read(body, \"accessToken\")); console.log(\"saved accessToken\"); }",
+                  "if (read(body, \"refreshToken\") !== undefined) { pm.collectionVariables.set(\"refreshToken\", read(body, \"refreshToken\")); console.log(\"saved refreshToken\"); }",
+                  "if (read(body, \"sessionId\") !== undefined) { pm.collectionVariables.set(\"sessionId\", read(body, \"sessionId\")); console.log(\"saved sessionId\"); }",
+                  "if (read(body, \"user.id\") !== undefined) { pm.collectionVariables.set(\"userId\", read(body, \"user.id\")); console.log(\"saved userId\"); }",
+                  "if (read(body, \"challengeToken\") !== undefined) { pm.collectionVariables.set(\"challengeToken\", read(body, \"challengeToken\")); console.log(\"saved challengeToken\"); }"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "description": "Full request/response details: https://github.com/TechElusive/techelusive-authentication/tree/main/docs/endpoints",
+            "auth": {
+              "type": "noauth"
+            },
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/auth/phone/verify-otp",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "auth",
+                "phone",
+                "verify-otp"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"phoneNumber\": \"{{phoneNumber}}\",\n  \"code\": \"{{smsCode}}\",\n  \"firstName\": \"Meera\",\n  \"lastName\": \"Shah\",\n  \"acceptTerms\": true,\n  \"acceptPrivacyPolicy\": true\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "3. Account and sessions",
+      "item": [
+        {
+          "name": "Get my profile",
+          "event": [],
+          "request": {
+            "method": "GET",
+            "description": "Full request/response details: https://github.com/TechElusive/techelusive-authentication/tree/main/docs/endpoints",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/auth/me",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "auth",
+                "me"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Update my profile",
+          "event": [],
+          "request": {
+            "method": "PATCH",
+            "description": "Full request/response details: https://github.com/TechElusive/techelusive-authentication/tree/main/docs/endpoints",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/auth/me",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "auth",
+                "me"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"firstName\": \"Asha\",\n  \"lastName\": \"Rao-Mehta\",\n  \"metadata\": {\n    \"preferredLanguage\": \"hi\"\n  }\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "My sign-in methods",
+          "event": [],
+          "request": {
+            "method": "GET",
+            "description": "Full request/response details: https://github.com/TechElusive/techelusive-authentication/tree/main/docs/endpoints",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/auth/sign-in-methods",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "auth",
+                "sign-in-methods"
+              ]
+            }
+          }
+        },
+        {
+          "name": "My devices",
+          "event": [],
+          "request": {
+            "method": "GET",
+            "description": "Full request/response details: https://github.com/TechElusive/techelusive-authentication/tree/main/docs/endpoints",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/auth/sessions",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "auth",
+                "sessions"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Sign out one device",
+          "event": [],
+          "request": {
+            "method": "DELETE",
+            "description": "Uses <sessionId> (the current device unless you change it).\n\nFull request/response details: https://github.com/TechElusive/techelusive-authentication/tree/main/docs/endpoints",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/auth/sessions/{{sessionId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "auth",
+                "sessions",
+                "{{sessionId}}"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Refresh tokens",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const body = pm.response.json();",
+                  "const read = (object, dottedPath) => dottedPath.split(\".\").reduce((value, key) => (value == null ? undefined : value[key]), object);",
+                  "if (read(body, \"accessToken\") !== undefined) { pm.collectionVariables.set(\"accessToken\", read(body, \"accessToken\")); console.log(\"saved accessToken\"); }",
+                  "if (read(body, \"refreshToken\") !== undefined) { pm.collectionVariables.set(\"refreshToken\", read(body, \"refreshToken\")); console.log(\"saved refreshToken\"); }"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "description": "Send it twice with the same old token to see reuse detection end the session.\n\nFull request/response details: https://github.com/TechElusive/techelusive-authentication/tree/main/docs/endpoints",
+            "auth": {
+              "type": "noauth"
+            },
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/auth/refresh",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "auth",
+                "refresh"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"refreshToken\": \"{{refreshToken}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "Logout (this device)",
+          "event": [],
+          "request": {
+            "method": "POST",
+            "description": "Full request/response details: https://github.com/TechElusive/techelusive-authentication/tree/main/docs/endpoints",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/auth/logout",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "auth",
+                "logout"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Logout everywhere",
+          "event": [],
+          "request": {
+            "method": "POST",
+            "description": "Full request/response details: https://github.com/TechElusive/techelusive-authentication/tree/main/docs/endpoints",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/auth/logout-all",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "auth",
+                "logout-all"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Deactivate my account",
+          "event": [],
+          "request": {
+            "method": "POST",
+            "description": "Then \"Login\" returns ACCOUNT_DEACTIVATED with a reactivationToken (saved automatically).\n\nFull request/response details: https://github.com/TechElusive/techelusive-authentication/tree/main/docs/endpoints",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/auth/deactivate",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "auth",
+                "deactivate"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Reactivate",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const body = pm.response.json();",
+                  "const read = (object, dottedPath) => dottedPath.split(\".\").reduce((value, key) => (value == null ? undefined : value[key]), object);",
+                  "if (read(body, \"accessToken\") !== undefined) { pm.collectionVariables.set(\"accessToken\", read(body, \"accessToken\")); console.log(\"saved accessToken\"); }",
+                  "if (read(body, \"refreshToken\") !== undefined) { pm.collectionVariables.set(\"refreshToken\", read(body, \"refreshToken\")); console.log(\"saved refreshToken\"); }",
+                  "if (read(body, \"sessionId\") !== undefined) { pm.collectionVariables.set(\"sessionId\", read(body, \"sessionId\")); console.log(\"saved sessionId\"); }",
+                  "if (read(body, \"user.id\") !== undefined) { pm.collectionVariables.set(\"userId\", read(body, \"user.id\")); console.log(\"saved userId\"); }",
+                  "if (read(body, \"challengeToken\") !== undefined) { pm.collectionVariables.set(\"challengeToken\", read(body, \"challengeToken\")); console.log(\"saved challengeToken\"); }"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "description": "Full request/response details: https://github.com/TechElusive/techelusive-authentication/tree/main/docs/endpoints",
+            "auth": {
+              "type": "noauth"
+            },
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/auth/reactivate",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "auth",
+                "reactivate"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"reactivationToken\": \"{{reactivationToken}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "Change my email",
+          "event": [],
+          "request": {
+            "method": "POST",
+            "description": "Sends a confirmation link to the new address. Accounts without a password leave out currentPassword but must have signed in within the last 10 minutes.\n\nFull request/response details: https://github.com/TechElusive/techelusive-authentication/tree/main/docs/endpoints",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/auth/email/change",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "auth",
+                "email",
+                "change"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"newEmail\": \"{{changedEmail}}\",\n  \"currentPassword\": \"{{password}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "Confirm email change (token from inbox)",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const to = pm.variables.replaceIn(\"{{changedEmail}}\");",
+                  "pm.sendRequest(pm.variables.replaceIn(\"{{baseUrl}}\") + \"/dev/api/inbox/latest?to=\" + encodeURIComponent(to) + \"&type=confirm_email_change\", (error, response) => {",
+                  "  if (error || response.code !== 200) { console.warn(\"No message in the dev inbox yet: send it first.\"); return; }",
+                  "  pm.collectionVariables.set(\"emailChangeToken\", response.json().token);",
+                  "  console.log(\"emailChangeToken taken from the dev inbox\");",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "description": "Switches the email and tells the old address. Afterwards set the email variable to asha.new@example.com to keep signing in.\n\nFull request/response details: https://github.com/TechElusive/techelusive-authentication/tree/main/docs/endpoints",
+            "auth": {
+              "type": "noauth"
+            },
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/auth/email/change/confirm",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "auth",
+                "email",
+                "change",
+                "confirm"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"token\": \"{{emailChangeToken}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "Download my data",
+          "event": [],
+          "request": {
+            "method": "GET",
+            "description": "Full request/response details: https://github.com/TechElusive/techelusive-authentication/tree/main/docs/endpoints",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/auth/me/export",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "auth",
+                "me",
+                "export"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Health check",
+          "event": [],
+          "request": {
+            "method": "GET",
+            "description": "200 when the database (and Redis, if used) answer, 503 otherwise.\n\nFull request/response details: https://github.com/TechElusive/techelusive-authentication/tree/main/docs/endpoints",
+            "auth": {
+              "type": "noauth"
+            },
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/auth/health",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "auth",
+                "health"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Delete my account",
+          "event": [],
+          "request": {
+            "method": "DELETE",
+            "description": "Permanent.\n\nFull request/response details: https://github.com/TechElusive/techelusive-authentication/tree/main/docs/endpoints",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/auth/me",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "auth",
+                "me"
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "4. Two-factor",
+      "item": [
+        {
+          "name": "2FA status",
+          "event": [],
+          "request": {
+            "method": "GET",
+            "description": "Full request/response details: https://github.com/TechElusive/techelusive-authentication/tree/main/docs/endpoints",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/auth/2fa",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "auth",
+                "2fa"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Start 2FA setup",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const body = pm.response.json();",
+                  "const read = (object, dottedPath) => dottedPath.split(\".\").reduce((value, key) => (value == null ? undefined : value[key]), object);",
+                  "if (read(body, \"secret\") !== undefined) { pm.collectionVariables.set(\"totpSecret\", read(body, \"secret\")); console.log(\"saved totpSecret\"); }"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "description": "Saves the secret. Scan authenticatorAppUrl with Google/Microsoft Authenticator if you want a real app too.\n\nFull request/response details: https://github.com/TechElusive/techelusive-authentication/tree/main/docs/endpoints",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/auth/2fa/setup",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "auth",
+                "2fa",
+                "setup"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Enable 2FA (code computed for you)",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.sendRequest(pm.variables.replaceIn(\"{{baseUrl}}/dev/api/totp?secret={{totpSecret}}\"), (error, response) => {",
+                  "  if (error || response.code !== 200) { console.warn(\"Run \\\"Start 2FA setup\\\" first.\"); return; }",
+                  "  pm.collectionVariables.set(\"totpCode\", response.json().code);",
+                  "});"
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const body = pm.response.json();",
+                  "const read = (object, dottedPath) => dottedPath.split(\".\").reduce((value, key) => (value == null ? undefined : value[key]), object);",
+                  "if (read(body, \"backupCodes.0\") !== undefined) { pm.collectionVariables.set(\"backupCode\", read(body, \"backupCodes.0\")); console.log(\"saved backupCode\"); }"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "description": "Full request/response details: https://github.com/TechElusive/techelusive-authentication/tree/main/docs/endpoints",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/auth/2fa/enable",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "auth",
+                "2fa",
+                "enable"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"code\": \"{{totpCode}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "Verify 2FA sign-in",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.sendRequest(pm.variables.replaceIn(\"{{baseUrl}}/dev/api/totp?secret={{totpSecret}}\"), (error, response) => {",
+                  "  if (error || response.code !== 200) { console.warn(\"Run \\\"Start 2FA setup\\\" first.\"); return; }",
+                  "  pm.collectionVariables.set(\"totpCode\", response.json().code);",
+                  "});"
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const body = pm.response.json();",
+                  "const read = (object, dottedPath) => dottedPath.split(\".\").reduce((value, key) => (value == null ? undefined : value[key]), object);",
+                  "if (read(body, \"accessToken\") !== undefined) { pm.collectionVariables.set(\"accessToken\", read(body, \"accessToken\")); console.log(\"saved accessToken\"); }",
+                  "if (read(body, \"refreshToken\") !== undefined) { pm.collectionVariables.set(\"refreshToken\", read(body, \"refreshToken\")); console.log(\"saved refreshToken\"); }",
+                  "if (read(body, \"sessionId\") !== undefined) { pm.collectionVariables.set(\"sessionId\", read(body, \"sessionId\")); console.log(\"saved sessionId\"); }",
+                  "if (read(body, \"user.id\") !== undefined) { pm.collectionVariables.set(\"userId\", read(body, \"user.id\")); console.log(\"saved userId\"); }",
+                  "if (read(body, \"challengeToken\") !== undefined) { pm.collectionVariables.set(\"challengeToken\", read(body, \"challengeToken\")); console.log(\"saved challengeToken\"); }"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "description": "A code works only once: wait for the next 30-second window before reusing, or put <backupCode> in \"code\".\n\nFull request/response details: https://github.com/TechElusive/techelusive-authentication/tree/main/docs/endpoints",
+            "auth": {
+              "type": "noauth"
+            },
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/auth/2fa/verify",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "auth",
+                "2fa",
+                "verify"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"challengeToken\": \"{{challengeToken}}\",\n  \"code\": \"{{totpCode}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "New backup codes",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.sendRequest(pm.variables.replaceIn(\"{{baseUrl}}/dev/api/totp?secret={{totpSecret}}\"), (error, response) => {",
+                  "  if (error || response.code !== 200) { console.warn(\"Run \\\"Start 2FA setup\\\" first.\"); return; }",
+                  "  pm.collectionVariables.set(\"totpCode\", response.json().code);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "description": "Full request/response details: https://github.com/TechElusive/techelusive-authentication/tree/main/docs/endpoints",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/auth/2fa/backup-codes",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "auth",
+                "2fa",
+                "backup-codes"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"code\": \"{{totpCode}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "Disable 2FA",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.sendRequest(pm.variables.replaceIn(\"{{baseUrl}}/dev/api/totp?secret={{totpSecret}}\"), (error, response) => {",
+                  "  if (error || response.code !== 200) { console.warn(\"Run \\\"Start 2FA setup\\\" first.\"); return; }",
+                  "  pm.collectionVariables.set(\"totpCode\", response.json().code);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "description": "Full request/response details: https://github.com/TechElusive/techelusive-authentication/tree/main/docs/endpoints",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/auth/2fa/disable",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "auth",
+                "2fa",
+                "disable"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"code\": \"{{totpCode}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "5. Social sign-in",
+      "item": [
+        {
+          "name": "Sign in with provider",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const body = pm.response.json();",
+                  "const read = (object, dottedPath) => dottedPath.split(\".\").reduce((value, key) => (value == null ? undefined : value[key]), object);",
+                  "if (read(body, \"accessToken\") !== undefined) { pm.collectionVariables.set(\"accessToken\", read(body, \"accessToken\")); console.log(\"saved accessToken\"); }",
+                  "if (read(body, \"refreshToken\") !== undefined) { pm.collectionVariables.set(\"refreshToken\", read(body, \"refreshToken\")); console.log(\"saved refreshToken\"); }",
+                  "if (read(body, \"sessionId\") !== undefined) { pm.collectionVariables.set(\"sessionId\", read(body, \"sessionId\")); console.log(\"saved sessionId\"); }",
+                  "if (read(body, \"user.id\") !== undefined) { pm.collectionVariables.set(\"userId\", read(body, \"user.id\")); console.log(\"saved userId\"); }",
+                  "if (read(body, \"challengeToken\") !== undefined) { pm.collectionVariables.set(\"challengeToken\", read(body, \"challengeToken\")); console.log(\"saved challengeToken\"); }"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "description": "Easiest with the \"Sign in with Google\" button on the dev dashboard. In Postman, paste a real ID token into paste-the-provider-token-here.\n\nFull request/response details: https://github.com/TechElusive/techelusive-authentication/tree/main/docs/endpoints",
+            "auth": {
+              "type": "noauth"
+            },
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/auth/social/{{provider}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "auth",
+                "social",
+                "{{provider}}"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"token\": \"{{socialToken}}\",\n  \"firstName\": \"Asha\",\n  \"lastName\": \"Rao\",\n  \"acceptTerms\": true,\n  \"acceptPrivacyPolicy\": true\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "Link provider",
+          "event": [],
+          "request": {
+            "method": "POST",
+            "description": "Full request/response details: https://github.com/TechElusive/techelusive-authentication/tree/main/docs/endpoints",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/auth/social/{{provider}}/link",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "auth",
+                "social",
+                "{{provider}}",
+                "link"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"token\": \"{{socialToken}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "Unlink provider",
+          "event": [],
+          "request": {
+            "method": "DELETE",
+            "description": "Full request/response details: https://github.com/TechElusive/techelusive-authentication/tree/main/docs/endpoints",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/auth/social/{{provider}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "auth",
+                "social",
+                "{{provider}}"
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "6. Passkeys",
+      "item": [
+        {
+          "name": "Registration options",
+          "event": [],
+          "request": {
+            "method": "POST",
+            "description": "Passkeys need a browser or phone: use the Passkeys panel on the dev dashboard. These requests show the raw options.\n\nFull request/response details: https://github.com/TechElusive/techelusive-authentication/tree/main/docs/endpoints",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/auth/passkeys/register/options",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "auth",
+                "passkeys",
+                "register",
+                "options"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Sign-in options",
+          "event": [],
+          "request": {
+            "method": "POST",
+            "description": "Full request/response details: https://github.com/TechElusive/techelusive-authentication/tree/main/docs/endpoints",
+            "auth": {
+              "type": "noauth"
+            },
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/auth/passkeys/sign-in/options",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "auth",
+                "passkeys",
+                "sign-in",
+                "options"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Register passkey (from browser response)",
+          "event": [],
+          "request": {
+            "method": "POST",
+            "description": "Full request/response details: https://github.com/TechElusive/techelusive-authentication/tree/main/docs/endpoints",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/auth/passkeys/register/verify",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "auth",
+                "passkeys",
+                "register",
+                "verify"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"challengeToken\": \"{{challengeToken}}\",\n  \"name\": \"My laptop\",\n  \"response\": {}\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "Sign in with passkey (from browser response)",
+          "event": [],
+          "request": {
+            "method": "POST",
+            "description": "Full request/response details: https://github.com/TechElusive/techelusive-authentication/tree/main/docs/endpoints",
+            "auth": {
+              "type": "noauth"
+            },
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/auth/passkeys/sign-in/verify",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "auth",
+                "passkeys",
+                "sign-in",
+                "verify"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"challengeToken\": \"{{challengeToken}}\",\n  \"response\": {}\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "List my passkeys",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const body = pm.response.json();",
+                  "const read = (object, dottedPath) => dottedPath.split(\".\").reduce((value, key) => (value == null ? undefined : value[key]), object);",
+                  "if (read(body, \"passkeys.0.id\") !== undefined) { pm.collectionVariables.set(\"passkeyId\", read(body, \"passkeys.0.id\")); console.log(\"saved passkeyId\"); }"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "description": "Full request/response details: https://github.com/TechElusive/techelusive-authentication/tree/main/docs/endpoints",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/auth/passkeys",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "auth",
+                "passkeys"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Rename passkey",
+          "event": [],
+          "request": {
+            "method": "PATCH",
+            "description": "Full request/response details: https://github.com/TechElusive/techelusive-authentication/tree/main/docs/endpoints",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/auth/passkeys/{{passkeyId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "auth",
+                "passkeys",
+                "{{passkeyId}}"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Work laptop\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "Remove passkey",
+          "event": [],
+          "request": {
+            "method": "DELETE",
+            "description": "Full request/response details: https://github.com/TechElusive/techelusive-authentication/tree/main/docs/endpoints",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/auth/passkeys/{{passkeyId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "auth",
+                "passkeys",
+                "{{passkeyId}}"
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "7. Organizations",
+      "item": [
+        {
+          "name": "Create organization",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const body = pm.response.json();",
+                  "const read = (object, dottedPath) => dottedPath.split(\".\").reduce((value, key) => (value == null ? undefined : value[key]), object);",
+                  "if (read(body, \"organization.id\") !== undefined) { pm.collectionVariables.set(\"organizationId\", read(body, \"organization.id\")); console.log(\"saved organizationId\"); }"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "description": "Full request/response details: https://github.com/TechElusive/techelusive-authentication/tree/main/docs/endpoints",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/auth/organizations",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "auth",
+                "organizations"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Acme Travels\",\n  \"slug\": \"{{organizationSlug}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "My organizations",
+          "event": [],
+          "request": {
+            "method": "GET",
+            "description": "Full request/response details: https://github.com/TechElusive/techelusive-authentication/tree/main/docs/endpoints",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/auth/organizations",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "auth",
+                "organizations"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Get organization",
+          "event": [],
+          "request": {
+            "method": "GET",
+            "description": "Full request/response details: https://github.com/TechElusive/techelusive-authentication/tree/main/docs/endpoints",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/auth/organizations/{{organizationId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "auth",
+                "organizations",
+                "{{organizationId}}"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Update organization",
+          "event": [],
+          "request": {
+            "method": "PATCH",
+            "description": "Full request/response details: https://github.com/TechElusive/techelusive-authentication/tree/main/docs/endpoints",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/auth/organizations/{{organizationId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "auth",
+                "organizations",
+                "{{organizationId}}"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Acme Travels India\",\n  \"metadata\": {\n    \"city\": \"Bengaluru\"\n  }\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "Invite member",
+          "event": [],
+          "request": {
+            "method": "POST",
+            "description": "Full request/response details: https://github.com/TechElusive/techelusive-authentication/tree/main/docs/endpoints",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/auth/organizations/{{organizationId}}/invitations",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "auth",
+                "organizations",
+                "{{organizationId}}",
+                "invitations"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"{{secondEmail}}\",\n  \"role\": \"member\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "List invitations",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const body = pm.response.json();",
+                  "const read = (object, dottedPath) => dottedPath.split(\".\").reduce((value, key) => (value == null ? undefined : value[key]), object);",
+                  "if (read(body, \"invitations.0.id\") !== undefined) { pm.collectionVariables.set(\"invitationId\", read(body, \"invitations.0.id\")); console.log(\"saved invitationId\"); }"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "description": "Full request/response details: https://github.com/TechElusive/techelusive-authentication/tree/main/docs/endpoints",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/auth/organizations/{{organizationId}}/invitations",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "auth",
+                "organizations",
+                "{{organizationId}}",
+                "invitations"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Accept invitation (as invited user)",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const to = pm.variables.replaceIn(\"{{secondEmail}}\");",
+                  "pm.sendRequest(pm.variables.replaceIn(\"{{baseUrl}}\") + \"/dev/api/inbox/latest?to=\" + encodeURIComponent(to) + \"&type=organization_invitation\", (error, response) => {",
+                  "  if (error || response.code !== 200) { console.warn(\"No message in the dev inbox yet: send it first.\"); return; }",
+                  "  pm.collectionVariables.set(\"invitationToken\", response.json().token);",
+                  "  console.log(\"invitationToken taken from the dev inbox\");",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "description": "Sign in as ravi@example.com first (e.g. \"Passwordless > Verify email code\"), so the access token is theirs.\n\nFull request/response details: https://github.com/TechElusive/techelusive-authentication/tree/main/docs/endpoints",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/auth/organizations/invitations/accept",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "auth",
+                "organizations",
+                "invitations",
+                "accept"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"token\": \"{{invitationToken}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "List members",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const body = pm.response.json();",
+                  "const read = (object, dottedPath) => dottedPath.split(\".\").reduce((value, key) => (value == null ? undefined : value[key]), object);",
+                  "if (read(body, \"members.1.userId\") !== undefined) { pm.collectionVariables.set(\"memberUserId\", read(body, \"members.1.userId\")); console.log(\"saved memberUserId\"); }"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "description": "Full request/response details: https://github.com/TechElusive/techelusive-authentication/tree/main/docs/endpoints",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/auth/organizations/{{organizationId}}/members",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "auth",
+                "organizations",
+                "{{organizationId}}",
+                "members"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Change member role",
+          "event": [],
+          "request": {
+            "method": "PATCH",
+            "description": "Full request/response details: https://github.com/TechElusive/techelusive-authentication/tree/main/docs/endpoints",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/auth/organizations/{{organizationId}}/members/{{memberUserId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "auth",
+                "organizations",
+                "{{organizationId}}",
+                "members",
+                "{{memberUserId}}"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"role\": \"admin\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "Remove member",
+          "event": [],
+          "request": {
+            "method": "DELETE",
+            "description": "Full request/response details: https://github.com/TechElusive/techelusive-authentication/tree/main/docs/endpoints",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/auth/organizations/{{organizationId}}/members/{{memberUserId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "auth",
+                "organizations",
+                "{{organizationId}}",
+                "members",
+                "{{memberUserId}}"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Cancel invitation",
+          "event": [],
+          "request": {
+            "method": "DELETE",
+            "description": "Full request/response details: https://github.com/TechElusive/techelusive-authentication/tree/main/docs/endpoints",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/auth/organizations/{{organizationId}}/invitations/{{invitationId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "auth",
+                "organizations",
+                "{{organizationId}}",
+                "invitations",
+                "{{invitationId}}"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Switch active organization",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const body = pm.response.json();",
+                  "const read = (object, dottedPath) => dottedPath.split(\".\").reduce((value, key) => (value == null ? undefined : value[key]), object);",
+                  "if (read(body, \"accessToken\") !== undefined) { pm.collectionVariables.set(\"accessToken\", read(body, \"accessToken\")); console.log(\"saved accessToken\"); }"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "description": "The new access token carries org_id and org_role (decode it at jwt.io to see).\n\nFull request/response details: https://github.com/TechElusive/techelusive-authentication/tree/main/docs/endpoints",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/auth/organizations/switch",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "auth",
+                "organizations",
+                "switch"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"organizationId\": \"{{organizationId}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "Delete organization",
+          "event": [],
+          "request": {
+            "method": "DELETE",
+            "description": "Full request/response details: https://github.com/TechElusive/techelusive-authentication/tree/main/docs/endpoints",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/auth/organizations/{{organizationId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "auth",
+                "organizations",
+                "{{organizationId}}"
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "8. Admin",
+      "item": [
+        {
+          "name": "Search users",
+          "event": [],
+          "request": {
+            "method": "GET",
+            "description": "Make yourself admin first: dev dashboard > \"Make admin\", then Login again.\n\nRequires an admin (a role listed in settings.admin.adminRoles).\n\nFull request/response details: https://github.com/TechElusive/techelusive-authentication/tree/main/docs/endpoints",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/auth/admin/users?search=example.com&page=1&pageSize=20",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "auth",
+                "admin",
+                "users"
+              ],
+              "query": [
+                {
+                  "key": "search",
+                  "value": "example.com"
+                },
+                {
+                  "key": "page",
+                  "value": "1"
+                },
+                {
+                  "key": "pageSize",
+                  "value": "20"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Get user details",
+          "event": [],
+          "request": {
+            "method": "GET",
+            "description": "Requires an admin (a role listed in settings.admin.adminRoles).\n\nFull request/response details: https://github.com/TechElusive/techelusive-authentication/tree/main/docs/endpoints",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/auth/admin/users/{{userId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "auth",
+                "admin",
+                "users",
+                "{{userId}}"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Update user",
+          "event": [],
+          "request": {
+            "method": "PATCH",
+            "description": "Requires an admin (a role listed in settings.admin.adminRoles).\n\nFull request/response details: https://github.com/TechElusive/techelusive-authentication/tree/main/docs/endpoints",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/auth/admin/users/{{userId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "auth",
+                "admin",
+                "users",
+                "{{userId}}"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"metadata\": {\n    \"kycStatus\": \"approved\"\n  }\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "Set roles",
+          "event": [],
+          "request": {
+            "method": "PUT",
+            "description": "Requires an admin (a role listed in settings.admin.adminRoles).\n\nFull request/response details: https://github.com/TechElusive/techelusive-authentication/tree/main/docs/endpoints",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/auth/admin/users/{{userId}}/roles",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "auth",
+                "admin",
+                "users",
+                "{{userId}}",
+                "roles"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"roles\": [\n    \"user\",\n    \"admin\"\n  ]\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "Suspend user",
+          "event": [],
+          "request": {
+            "method": "POST",
+            "description": "Requires an admin (a role listed in settings.admin.adminRoles).\n\nFull request/response details: https://github.com/TechElusive/techelusive-authentication/tree/main/docs/endpoints",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/auth/admin/users/{{userId}}/suspend",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "auth",
+                "admin",
+                "users",
+                "{{userId}}",
+                "suspend"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"reason\": \"Manual test\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "Unsuspend user",
+          "event": [],
+          "request": {
+            "method": "POST",
+            "description": "Requires an admin (a role listed in settings.admin.adminRoles).\n\nFull request/response details: https://github.com/TechElusive/techelusive-authentication/tree/main/docs/endpoints",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/auth/admin/users/{{userId}}/unsuspend",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "auth",
+                "admin",
+                "users",
+                "{{userId}}",
+                "unsuspend"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Verify user email",
+          "event": [],
+          "request": {
+            "method": "POST",
+            "description": "Requires an admin (a role listed in settings.admin.adminRoles).\n\nFull request/response details: https://github.com/TechElusive/techelusive-authentication/tree/main/docs/endpoints",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/auth/admin/users/{{userId}}/verify-email",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "auth",
+                "admin",
+                "users",
+                "{{userId}}",
+                "verify-email"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Reset user 2FA",
+          "event": [],
+          "request": {
+            "method": "POST",
+            "description": "Requires an admin (a role listed in settings.admin.adminRoles).\n\nFull request/response details: https://github.com/TechElusive/techelusive-authentication/tree/main/docs/endpoints",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/auth/admin/users/{{userId}}/reset-2fa",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "auth",
+                "admin",
+                "users",
+                "{{userId}}",
+                "reset-2fa"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Sign user out everywhere",
+          "event": [],
+          "request": {
+            "method": "POST",
+            "description": "Requires an admin (a role listed in settings.admin.adminRoles).\n\nFull request/response details: https://github.com/TechElusive/techelusive-authentication/tree/main/docs/endpoints",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/auth/admin/users/{{userId}}/logout-all",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "auth",
+                "admin",
+                "users",
+                "{{userId}}",
+                "logout-all"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Delete user",
+          "event": [],
+          "request": {
+            "method": "DELETE",
+            "description": "Uses <userId>: careful, that is you unless you change it.\n\nRequires an admin (a role listed in settings.admin.adminRoles).\n\nFull request/response details: https://github.com/TechElusive/techelusive-authentication/tree/main/docs/endpoints",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/auth/admin/users/{{userId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "auth",
+                "admin",
+                "users",
+                "{{userId}}"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Get settings",
+          "event": [],
+          "request": {
+            "method": "GET",
+            "description": "Requires an admin (a role listed in settings.admin.adminRoles).\n\nFull request/response details: https://github.com/TechElusive/techelusive-authentication/tree/main/docs/endpoints",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/auth/admin/settings",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "auth",
+                "admin",
+                "settings"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Change settings",
+          "event": [],
+          "request": {
+            "method": "PATCH",
+            "description": "Requires an admin (a role listed in settings.admin.adminRoles).\n\nFull request/response details: https://github.com/TechElusive/techelusive-authentication/tree/main/docs/endpoints",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/auth/admin/settings",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "auth",
+                "admin",
+                "settings"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"magicLink\": {\n    \"enabled\": true\n  },\n  \"security\": {\n    \"notifyOnNewSignIn\": true\n  }\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "Reset settings to code defaults",
+          "event": [],
+          "request": {
+            "method": "DELETE",
+            "description": "Requires an admin (a role listed in settings.admin.adminRoles).\n\nFull request/response details: https://github.com/TechElusive/techelusive-authentication/tree/main/docs/endpoints",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/auth/admin/settings",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "auth",
+                "admin",
+                "settings"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Audit log",
+          "event": [],
+          "request": {
+            "method": "GET",
+            "description": "Requires an admin (a role listed in settings.admin.adminRoles).\n\nFull request/response details: https://github.com/TechElusive/techelusive-authentication/tree/main/docs/endpoints",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/auth/admin/audit-log?page=1&pageSize=20",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "auth",
+                "admin",
+                "audit-log"
+              ],
+              "query": [
+                {
+                  "key": "page",
+                  "value": "1"
+                },
+                {
+                  "key": "pageSize",
+                  "value": "20"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Stats",
+          "event": [],
+          "request": {
+            "method": "GET",
+            "description": "Requires an admin (a role listed in settings.admin.adminRoles).\n\nFull request/response details: https://github.com/TechElusive/techelusive-authentication/tree/main/docs/endpoints",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/auth/admin/stats",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "auth",
+                "admin",
+                "stats"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Run data cleanup now",
+          "event": [],
+          "request": {
+            "method": "POST",
+            "description": "Deletes rows older than settings.retention allows (it also runs every hour). Returns how many rows each step removed.\n\nRequires an admin (a role listed in settings.admin.adminRoles).\n\nFull request/response details: https://github.com/TechElusive/techelusive-authentication/tree/main/docs/endpoints",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/auth/admin/maintenance/cleanup",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "auth",
+                "admin",
+                "maintenance",
+                "cleanup"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Rotate signing key",
+          "event": [],
+          "request": {
+            "method": "POST",
+            "description": "Requires an admin (a role listed in settings.admin.adminRoles).\n\nFull request/response details: https://github.com/TechElusive/techelusive-authentication/tree/main/docs/endpoints",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/auth/admin/signing-keys/rotate",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "auth",
+                "admin",
+                "signing-keys",
+                "rotate"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Create API key",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const body = pm.response.json();",
+                  "const read = (object, dottedPath) => dottedPath.split(\".\").reduce((value, key) => (value == null ? undefined : value[key]), object);",
+                  "if (read(body, \"apiKey\") !== undefined) { pm.collectionVariables.set(\"apiKey\", read(body, \"apiKey\")); console.log(\"saved apiKey\"); }",
+                  "if (read(body, \"details.id\") !== undefined) { pm.collectionVariables.set(\"apiKeyId\", read(body, \"details.id\")); console.log(\"saved apiKeyId\"); }"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "description": "Requires an admin (a role listed in settings.admin.adminRoles).\n\nFull request/response details: https://github.com/TechElusive/techelusive-authentication/tree/main/docs/endpoints",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/auth/admin/api-keys",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "auth",
+                "admin",
+                "api-keys"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Postman test key\",\n  \"scopes\": [\n    \"rides:read\"\n  ]\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "List API keys",
+          "event": [],
+          "request": {
+            "method": "GET",
+            "description": "Requires an admin (a role listed in settings.admin.adminRoles).\n\nFull request/response details: https://github.com/TechElusive/techelusive-authentication/tree/main/docs/endpoints",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/auth/admin/api-keys",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "auth",
+                "admin",
+                "api-keys"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Revoke API key",
+          "event": [],
+          "request": {
+            "method": "DELETE",
+            "description": "Requires an admin (a role listed in settings.admin.adminRoles).\n\nFull request/response details: https://github.com/TechElusive/techelusive-authentication/tree/main/docs/endpoints",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/auth/admin/api-keys/{{apiKeyId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "auth",
+                "admin",
+                "api-keys",
+                "{{apiKeyId}}"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Create webhook (to the playground receiver)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const body = pm.response.json();",
+                  "const read = (object, dottedPath) => dottedPath.split(\".\").reduce((value, key) => (value == null ? undefined : value[key]), object);",
+                  "if (read(body, \"webhook.id\") !== undefined) { pm.collectionVariables.set(\"webhookId\", read(body, \"webhook.id\")); console.log(\"saved webhookId\"); }",
+                  "if (read(body, \"signingSecret\") !== undefined) { pm.collectionVariables.set(\"webhookSecret\", read(body, \"signingSecret\")); console.log(\"saved webhookSecret\"); }"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "description": "Deliveries appear on the dev dashboard with their signature check result.\n\nRequires an admin (a role listed in settings.admin.adminRoles).\n\nFull request/response details: https://github.com/TechElusive/techelusive-authentication/tree/main/docs/endpoints",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/auth/admin/webhooks",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "auth",
+                "admin",
+                "webhooks"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"url\": \"{{baseUrl}}/dev/webhook-receiver\",\n  \"eventNames\": [],\n  \"description\": \"Playground receiver\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "List webhooks",
+          "event": [],
+          "request": {
+            "method": "GET",
+            "description": "Requires an admin (a role listed in settings.admin.adminRoles).\n\nFull request/response details: https://github.com/TechElusive/techelusive-authentication/tree/main/docs/endpoints",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/auth/admin/webhooks",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "auth",
+                "admin",
+                "webhooks"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Update webhook",
+          "event": [],
+          "request": {
+            "method": "PATCH",
+            "description": "Requires an admin (a role listed in settings.admin.adminRoles).\n\nFull request/response details: https://github.com/TechElusive/techelusive-authentication/tree/main/docs/endpoints",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/auth/admin/webhooks/{{webhookId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "auth",
+                "admin",
+                "webhooks",
+                "{{webhookId}}"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"eventNames\": [\n    \"user.signed_in\",\n    \"user.created\"\n  ]\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "Send test delivery",
+          "event": [],
+          "request": {
+            "method": "POST",
+            "description": "Requires an admin (a role listed in settings.admin.adminRoles).\n\nFull request/response details: https://github.com/TechElusive/techelusive-authentication/tree/main/docs/endpoints",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/auth/admin/webhooks/{{webhookId}}/test",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "auth",
+                "admin",
+                "webhooks",
+                "{{webhookId}}",
+                "test"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Webhook deliveries",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const body = pm.response.json();",
+                  "const read = (object, dottedPath) => dottedPath.split(\".\").reduce((value, key) => (value == null ? undefined : value[key]), object);",
+                  "if (read(body, \"deliveries.0.id\") !== undefined) { pm.collectionVariables.set(\"deliveryId\", read(body, \"deliveries.0.id\")); console.log(\"saved deliveryId\"); }"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "description": "Requires an admin (a role listed in settings.admin.adminRoles).\n\nFull request/response details: https://github.com/TechElusive/techelusive-authentication/tree/main/docs/endpoints",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/auth/admin/webhooks/{{webhookId}}/deliveries",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "auth",
+                "admin",
+                "webhooks",
+                "{{webhookId}}",
+                "deliveries"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Retry delivery",
+          "event": [],
+          "request": {
+            "method": "POST",
+            "description": "Requires an admin (a role listed in settings.admin.adminRoles).\n\nFull request/response details: https://github.com/TechElusive/techelusive-authentication/tree/main/docs/endpoints",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/auth/admin/webhooks/{{webhookId}}/deliveries/{{deliveryId}}/retry",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "auth",
+                "admin",
+                "webhooks",
+                "{{webhookId}}",
+                "deliveries",
+                "{{deliveryId}}",
+                "retry"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Rotate webhook secret",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const body = pm.response.json();",
+                  "const read = (object, dottedPath) => dottedPath.split(\".\").reduce((value, key) => (value == null ? undefined : value[key]), object);",
+                  "if (read(body, \"signingSecret\") !== undefined) { pm.collectionVariables.set(\"webhookSecret\", read(body, \"signingSecret\")); console.log(\"saved webhookSecret\"); }"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "description": "Requires an admin (a role listed in settings.admin.adminRoles).\n\nFull request/response details: https://github.com/TechElusive/techelusive-authentication/tree/main/docs/endpoints",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/auth/admin/webhooks/{{webhookId}}/rotate-secret",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "auth",
+                "admin",
+                "webhooks",
+                "{{webhookId}}",
+                "rotate-secret"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Delete webhook",
+          "event": [],
+          "request": {
+            "method": "DELETE",
+            "description": "Requires an admin (a role listed in settings.admin.adminRoles).\n\nFull request/response details: https://github.com/TechElusive/techelusive-authentication/tree/main/docs/endpoints",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/auth/admin/webhooks/{{webhookId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "auth",
+                "admin",
+                "webhooks",
+                "{{webhookId}}"
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "9. Public keys",
+      "item": [
+        {
+          "name": "JWKS (public signing keys)",
+          "event": [],
+          "request": {
+            "method": "GET",
+            "description": "Full request/response details: https://github.com/TechElusive/techelusive-authentication/tree/main/docs/endpoints",
+            "auth": {
+              "type": "noauth"
+            },
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/.well-known/jwks.json",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                ".well-known",
+                "jwks.json"
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "10. Playground helpers",
+      "item": [
+        {
+          "name": "Call an app route with the API key",
+          "event": [],
+          "request": {
+            "method": "GET",
+            "description": "Create the key first (Admin > Create API key, scope rides:read). After revoking it this returns 401 INVALID_API_KEY.\n\nFull request/response details: https://github.com/TechElusive/techelusive-authentication/tree/main/docs/endpoints",
+            "auth": {
+              "type": "noauth"
+            },
+            "header": [
+              {
+                "key": "x-api-key",
+                "value": "{{apiKey}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/sample/partner-export",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "sample",
+                "partner-export"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Same route with your user token",
+          "event": [],
+          "request": {
+            "method": "GET",
+            "description": "Signed-in users may call routes marked @ApiKeyScopes too.\n\nFull request/response details: https://github.com/TechElusive/techelusive-authentication/tree/main/docs/endpoints",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/sample/partner-export",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "sample",
+                "partner-export"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Dev inbox (all emails and SMS)",
+          "event": [],
+          "request": {
+            "method": "GET",
+            "description": "Full request/response details: https://github.com/TechElusive/techelusive-authentication/tree/main/docs/endpoints",
+            "auth": {
+              "type": "noauth"
+            },
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/dev/api/inbox",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "dev",
+                "api",
+                "inbox"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Auth events",
+          "event": [],
+          "request": {
+            "method": "GET",
+            "description": "Full request/response details: https://github.com/TechElusive/techelusive-authentication/tree/main/docs/endpoints",
+            "auth": {
+              "type": "noauth"
+            },
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/dev/api/events",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "dev",
+                "api",
+                "events"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Make me admin",
+          "event": [],
+          "request": {
+            "method": "POST",
+            "description": "Then run \"Refresh tokens\" so the new role is in the access token.\n\nFull request/response details: https://github.com/TechElusive/techelusive-authentication/tree/main/docs/endpoints",
+            "auth": {
+              "type": "noauth"
+            },
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/dev/api/make-admin",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "dev",
+                "api",
+                "make-admin"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"{{email}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        }
+      ]
+    }
+  ]
+}

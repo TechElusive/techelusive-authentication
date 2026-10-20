@@ -1,0 +1,60 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_PASSWORD: postgres
+        ports: ['5432:5432']
+        options: >-
+          --health-cmd "pg_isready -U postgres"
+          --health-interval 5s --health-timeout 5s --health-retries 10
+    env:
+      DATABASE_URL: postgres://postgres:postgres@localhost:5432/postgres
+      PLAYGROUND_DATABASE_URL: postgres://postgres:postgres@localhost:5432/techelusive_playground
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      # Switch to `npm ci` (and add `cache: npm` above) once package-lock.json is committed.
+      - run: npm install
+      - name: Known vulnerabilities in dependencies (high or critical)
+        run: npm audit --omit=dev --audit-level=high
+      - run: npm run typecheck
+      - run: npm test
+      - run: npm run build
+      - name: Migrations run up, down and up again on PostgreSQL
+        run: npm run check-migration
+      - name: End-to-end flows on PostgreSQL
+        run: npm run e2e
+
+      - name: Every flow over HTTP (playground)
+        run: |
+          npm run api-specs && npm run playground:build
+          DATABASE_URL=$PLAYGROUND_DATABASE_URL node dist-playground/playground/main.js > playground.log 2>&1 &
+          PLAYGROUND_PID=$!
+          npx --yes wait-on@8.0.1 --timeout 60000 http-get://localhost:3000/auth/health
+          DATABASE_URL=$PLAYGROUND_DATABASE_URL npm run check:http
+          kill $PLAYGROUND_PID
+      - name: Web cookie mode over HTTP (playground)
+        run: |
+          REFRESH_TOKEN_COOKIE_ORIGINS=http://localhost:3000 DATABASE_URL=$PLAYGROUND_DATABASE_URL node dist-playground/playground/main.js > playground-cookie.log 2>&1 &
+          PLAYGROUND_PID=$!
+          npx --yes wait-on@8.0.1 --timeout 60000 http-get://localhost:3000/auth/health
+          npm run check:cookies
+          kill $PLAYGROUND_PID
+      - name: Playground logs
+        if: failure()
+        run: cat playground.log playground-cookie.log 2>/dev/null || true

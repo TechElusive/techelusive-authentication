@@ -1,0 +1,335 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Auth Playground</title>
+    <style>
+      :root {
+        --background: #f6f7f9; --panel: #ffffff; --text: #111827; --muted: #6b7280; --border: #e5e7eb;
+        --accent: #2563eb; --accent-text: #ffffff; --good: #15803d; --bad: #b91c1c; --code-background: #f3f4f6;
+      }
+      @media (prefers-color-scheme: dark) {
+        :root {
+          --background: #0f1115; --panel: #171a21; --text: #e5e7eb; --muted: #9ca3af; --border: #2a2f3a;
+          --accent: #3b82f6; --accent-text: #ffffff; --good: #4ade80; --bad: #f87171; --code-background: #1f2430;
+        }
+      }
+      * { box-sizing: border-box; }
+      body { margin: 0; background: var(--background); color: var(--text); font: 14px/1.45 system-ui, -apple-system, Segoe UI, sans-serif; }
+      header { display: flex; flex-wrap: wrap; gap: 12px 20px; align-items: center; padding: 14px 20px; border-bottom: 1px solid var(--border); background: var(--panel); }
+      header h1 { font-size: 16px; margin: 0; }
+      header a { color: var(--accent); text-decoration: none; }
+      header .spacer { flex: 1; }
+      main { display: grid; grid-template-columns: minmax(300px, 380px) 1fr; gap: 16px; padding: 16px 20px; }
+      @media (max-width: 860px) { main { grid-template-columns: 1fr; padding: 12px; } }
+      section { background: var(--panel); border: 1px solid var(--border); border-radius: 10px; padding: 14px; margin-bottom: 16px; min-width: 0; }
+      h2 { font-size: 13px; text-transform: uppercase; letter-spacing: .04em; color: var(--muted); margin: 0 0 10px; display: flex; justify-content: space-between; gap: 8px; }
+      label { display: block; font-size: 12px; color: var(--muted); margin: 8px 0 3px; }
+      input { width: 100%; padding: 8px 10px; border: 1px solid var(--border); border-radius: 7px; background: var(--background); color: var(--text); font: inherit; }
+      button { padding: 7px 12px; border-radius: 7px; border: 1px solid var(--border); background: var(--background); color: var(--text); font: inherit; cursor: pointer; }
+      button.primary { background: var(--accent); border-color: var(--accent); color: var(--accent-text); }
+      .row { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 10px; }
+      .tabs { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 4px; }
+      .tabs button.active { background: var(--accent); color: var(--accent-text); border-color: var(--accent); }
+      pre { background: var(--code-background); padding: 10px; border-radius: 7px; overflow: auto; max-height: 260px; font-size: 12px; margin: 8px 0 0; white-space: pre-wrap; word-break: break-all; }
+      .list { display: flex; flex-direction: column; gap: 8px; max-height: 420px; overflow: auto; }
+      .item { border: 1px solid var(--border); border-radius: 8px; padding: 8px 10px; }
+      .item .top { display: flex; gap: 8px; align-items: baseline; flex-wrap: wrap; }
+      .badge { font-size: 11px; padding: 1px 7px; border-radius: 99px; background: var(--code-background); color: var(--muted); }
+      .time { color: var(--muted); font-size: 12px; margin-left: auto; }
+      .secret { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 15px; word-break: break-all; }
+      .good { color: var(--good); } .bad { color: var(--bad); }
+      .muted { color: var(--muted); }
+      .grid-two { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+      @media (max-width: 1100px) { .grid-two { grid-template-columns: 1fr; } }
+      #status { font-size: 13px; margin-top: 10px; }
+    </style>
+  </head>
+  <body>
+    <header>
+      <h1>Auth Playground</h1>
+      <a href="/docs" target="_blank">Swagger UI</a>
+      <a href="/.well-known/jwks.json" target="_blank">JWKS</a>
+      <span class="muted">Every email and SMS appears below (and is also sent for real if configured in playground/.env).</span>
+      <span class="spacer"></span>
+      <button id="clear">Clear inbox &amp; events</button>
+    </header>
+
+    <div id="link-token" hidden style="margin:12px 24px;padding:10px 14px;border:1px solid #8a8;border-radius:8px">
+      Token from the email link (paste into Postman or Swagger): <code id="link-token-value"></code>
+    </div>
+
+    <main>
+      <div>
+        <section>
+          <h2>Test client</h2>
+          <div class="tabs" id="tabs">
+            <button data-tab="login" class="active">Password</button>
+            <button data-tab="register">Register</button>
+            <button data-tab="code">Email code</button>
+          </div>
+          <label for="email">Email</label>
+          <input id="email" value="asha@example.com" autocomplete="off" />
+          <div id="password-field">
+            <label for="password">Password</label>
+            <input id="password" value="correct horse battery" type="text" autocomplete="off" />
+          </div>
+          <div id="code-field" hidden>
+            <label for="code">Code (auto-filled from the inbox)</label>
+            <input id="code" autocomplete="off" />
+          </div>
+          <div class="row" id="actions"></div>
+          <div id="two-factor" hidden>
+            <label for="two-factor-code">Authenticator or backup code</label>
+            <input id="two-factor-code" autocomplete="off" />
+            <div class="row"><button class="primary" id="verify-two-factor">Verify 2FA</button></div>
+          </div>
+          <div id="status" class="muted">Not signed in.</div>
+        </section>
+
+        <section>
+          <h2>Session <span id="session-actions" class="row" style="margin:0"></span></h2>
+          <div class="row">
+            <button id="refresh">Refresh tokens</button>
+            <button id="me">GET /auth/me</button>
+            <button id="make-admin">Make admin</button>
+            <button id="logout">Logout</button>
+          </div>
+          <label>Access token claims</label>
+          <pre id="claims">—</pre>
+          <label>Last response</label>
+          <pre id="response">—</pre>
+        </section>
+
+        <section>
+          <h2>Passkeys &amp; Google</h2>
+          <div class="row">
+            <button id="passkey-register">Add a passkey (signed in)</button>
+            <button id="passkey-sign-in">Sign in with a passkey</button>
+          </div>
+          <div id="google" class="row"></div>
+          <p class="muted" id="google-hint">Set GOOGLE_CLIENT_ID before starting the playground to test Google sign-in here.</p>
+        </section>
+      </div>
+
+      <div>
+        <section>
+          <h2>Inbox: emails &amp; SMS <span class="muted" id="inbox-count"></span></h2>
+          <div class="list" id="inbox"><p class="muted">Nothing sent yet. Register or request a code.</p></div>
+        </section>
+        <div class="grid-two">
+          <section>
+            <h2>Auth events (live)</h2>
+            <div class="list" id="events"><p class="muted">No events yet.</p></div>
+          </section>
+          <section>
+            <h2>Webhooks received</h2>
+            <div class="list" id="webhooks"><p class="muted">Create a webhook pointing to <code>http://localhost:3000/dev/webhook-receiver</code> (Postman: Admin &gt; Create webhook).</p></div>
+          </section>
+        </div>
+      </div>
+    </main>
+
+    <script src="https://unpkg.com/@simplewebauthn/browser@13.1.0/dist/bundle/index.umd.min.js"></script>
+    <script>
+      const POLL_INTERVAL_MS = 2000;
+      const state = { tab: 'login', accessToken: null, refreshToken: null, challengeToken: null };
+      const $ = (id) => document.getElementById(id);
+
+      async function call(method, path, body, withToken = true) {
+        const headers = { 'Content-Type': 'application/json' };
+        if (withToken && state.accessToken) headers.Authorization = `Bearer ${state.accessToken}`;
+        const response = await fetch(path, { method, headers, body: body ? JSON.stringify(body) : undefined });
+        const text = await response.text();
+        const json = text ? JSON.parse(text) : {};
+        $('response').textContent = `${method} ${path} → ${response.status}\n${JSON.stringify(json, null, 2)}`;
+        return json;
+      }
+
+      function decodeClaims(token) {
+        try {
+          const payload = token.split('.')[1].replace(/-/g, '+').replace(/_/g, '/');
+          return JSON.parse(atob(payload));
+        } catch { return null; }
+      }
+
+      function handleSignIn(result) {
+        if (result.status === 'signed_in') {
+          state.accessToken = result.accessToken;
+          state.refreshToken = result.refreshToken;
+          state.challengeToken = null;
+          $('two-factor').hidden = true;
+          showSession();
+        } else if (result.status === 'two_factor_required') {
+          state.challengeToken = result.challengeToken;
+          $('two-factor').hidden = false;
+          $('status').textContent = 'Password accepted. Enter your authenticator or backup code.';
+        } else if (result.code === 'ACCOUNT_DEACTIVATED') {
+          $('status').innerHTML = 'Account is deactivated. <button id="reactivate">Reactivate</button>';
+          $('reactivate').onclick = async () => handleSignIn(await call('POST', '/auth/reactivate', { reactivationToken: result.reactivationToken }, false));
+        } else if (result.success === false) {
+          $('status').innerHTML = `<span class="bad">${result.code}</span>: ${result.message}`;
+        } else if (result.status === 'verification_required') {
+          $('status').textContent = `Account created. Still to verify: ${result.pendingVerifications.join(', ')}. Open the link in the inbox.`;
+        }
+      }
+
+      function showSession() {
+        const claims = state.accessToken ? decodeClaims(state.accessToken) : null;
+        $('claims').textContent = claims ? JSON.stringify(claims, null, 2) : '—';
+        $('status').innerHTML = claims ? `<span class="good">Signed in</span> as user ${claims.sub} with roles ${claims.roles.join(', ')}` : 'Not signed in.';
+      }
+
+      // ---- Test client tabs -----------------------------------------------------------------
+      function renderActions() {
+        const actions = $('actions');
+        actions.innerHTML = '';
+        $('password-field').hidden = state.tab === 'code';
+        $('code-field').hidden = state.tab !== 'code';
+        const add = (label, handler, primary) => {
+          const button = document.createElement('button');
+          button.textContent = label;
+          if (primary) button.className = 'primary';
+          button.onclick = handler;
+          actions.appendChild(button);
+        };
+        const email = () => $('email').value.trim();
+        if (state.tab === 'login') add('Sign in', async () => handleSignIn(await call('POST', '/auth/login', { email: email(), password: $('password').value }, false)), true);
+        if (state.tab === 'register') {
+          add('Create account', async () => handleSignIn(await call('POST', '/auth/register', {
+            email: email(), password: $('password').value, firstName: 'Test', lastName: 'User', acceptTerms: true, acceptPrivacyPolicy: true,
+          }, false)), true);
+        }
+        if (state.tab === 'code') {
+          add('Send code', async () => { await call('POST', '/auth/email/send-otp', { email: email() }, false); $('status').textContent = 'Code sent: it appears in the inbox and fills in automatically.'; });
+          add('Sign in with code', async () => handleSignIn(await call('POST', '/auth/email/verify-otp', {
+            email: email(), code: $('code').value.trim(), firstName: 'Test', lastName: 'User', acceptTerms: true, acceptPrivacyPolicy: true,
+          }, false)), true);
+        }
+      }
+      $('tabs').onclick = (event) => {
+        const tab = event.target.dataset && event.target.dataset.tab;
+        if (!tab) return;
+        state.tab = tab;
+        [...$('tabs').children].forEach((button) => button.classList.toggle('active', button.dataset.tab === tab));
+        renderActions();
+      };
+      renderActions();
+
+      $('verify-two-factor').onclick = async () =>
+        handleSignIn(await call('POST', '/auth/2fa/verify', { challengeToken: state.challengeToken, code: $('two-factor-code').value.trim() }, false));
+      $('refresh').onclick = async () => {
+        const result = await call('POST', '/auth/refresh', { refreshToken: state.refreshToken }, false);
+        if (result.success) { state.accessToken = result.accessToken; state.refreshToken = result.refreshToken; }
+        showSession();
+      };
+      $('me').onclick = () => call('GET', '/auth/me');
+      $('logout').onclick = async () => { await call('POST', '/auth/logout'); state.accessToken = state.refreshToken = null; showSession(); };
+      $('make-admin').onclick = async () => {
+        const result = await call('POST', '/dev/api/make-admin', { email: $('email').value.trim() }, false);
+        $('status').textContent = result.success ? 'Admin role added. Refresh tokens (or sign in again) to get it in the access token.' : 'User not found.';
+      };
+      $('clear').onclick = async () => { await call('POST', '/dev/api/clear', {}, false); poll(); };
+
+      // ---- Passkeys -------------------------------------------------------------------------
+      $('passkey-register').onclick = async () => {
+        if (!state.accessToken) { $('status').textContent = 'Sign in first, then add a passkey.'; return; }
+        try {
+          const { challengeToken, options } = await call('POST', '/auth/passkeys/register/options');
+          const response = await SimpleWebAuthnBrowser.startRegistration({ optionsJSON: options });
+          await call('POST', '/auth/passkeys/register/verify', { challengeToken, response, name: 'Playground passkey' });
+          $('status').innerHTML = '<span class="good">Passkey added.</span> Sign out and use "Sign in with a passkey".';
+        } catch (error) { $('status').innerHTML = `<span class="bad">Passkey error:</span> ${error.message}`; }
+      };
+      $('passkey-sign-in').onclick = async () => {
+        try {
+          const { challengeToken, options } = await call('POST', '/auth/passkeys/sign-in/options', undefined, false);
+          const response = await SimpleWebAuthnBrowser.startAuthentication({ optionsJSON: options });
+          handleSignIn(await call('POST', '/auth/passkeys/sign-in/verify', { challengeToken, response }, false));
+        } catch (error) { $('status').innerHTML = `<span class="bad">Passkey error:</span> ${error.message}`; }
+      };
+
+      // ---- Google ---------------------------------------------------------------------------
+      fetch('/dev/api/config').then((response) => response.json()).then((config) => {
+        if (!config.googleClientId) return;
+        $('google-hint').hidden = true;
+        const script = document.createElement('script');
+        script.src = 'https://accounts.google.com/gsi/client';
+        script.onload = () => {
+          google.accounts.id.initialize({
+            client_id: config.googleClientId,
+            callback: async ({ credential }) => handleSignIn(await call('POST', '/auth/social/google', {
+              token: credential, acceptTerms: true, acceptPrivacyPolicy: true,
+            }, false)),
+          });
+          google.accounts.id.renderButton($('google'), { theme: 'outline', size: 'large' });
+        };
+        document.head.appendChild(script);
+      });
+
+      // ---- Live panels ----------------------------------------------------------------------
+      const escapeHtml = (text) => String(text).replace(/[&<>"']/g, (character) => `&#${character.charCodeAt(0)};`);
+      const time = (iso) => new Date(iso).toLocaleTimeString();
+      let newestMessageId = 0;
+
+      async function poll() {
+        const [{ messages }, { events }, { deliveries }] = await Promise.all([
+          fetch('/dev/api/inbox').then((response) => response.json()),
+          fetch('/dev/api/events').then((response) => response.json()),
+          fetch('/dev/api/webhook-deliveries').then((response) => response.json()),
+        ]);
+
+        $('inbox-count').textContent = messages.length ? `${messages.length}` : '';
+        $('inbox').innerHTML = messages.length ? messages.map((message) => `
+          <div class="item">
+            <div class="top"><span class="badge">${escapeHtml(message.type)}</span><strong>${escapeHtml(message.to)}</strong><span class="time">${time(message.sentAt)}</span></div>
+            ${message.code ? `<div class="secret">${escapeHtml(message.code)} <button data-copy="${escapeHtml(message.code)}">Copy</button></div>` : ''}
+            ${message.token ? `<div class="secret">${escapeHtml(message.token)} <button data-copy="${escapeHtml(message.token)}">Copy</button>${message.type === 'verify_email' ? ` <button data-verify="${escapeHtml(message.token)}">Verify now</button>` : ''}</div>` : ''}
+            ${Object.keys(message.details).length ? `<div class="muted">${escapeHtml(JSON.stringify(message.details))}</div>` : ''}
+          </div>`).join('') : '<p class="muted">Nothing sent yet. Register or request a code.</p>';
+
+        // Fill the newest email code into the test client automatically.
+        const newest = messages[0];
+        if (newest && newest.id !== newestMessageId) {
+          newestMessageId = newest.id;
+          if (newest.type === 'sign_in_code') $('code').value = newest.code;
+        }
+
+        $('events').innerHTML = events.length ? events.map((event) => `
+          <div class="item">
+            <div class="top"><strong>${escapeHtml(event.name)}</strong><span class="time">${time(event.occurredAt)}</span></div>
+            <div class="muted">${event.userId ? `user ${escapeHtml(event.userId.slice(0, 8))}… · ` : ''}${escapeHtml(JSON.stringify(event.data))}</div>
+          </div>`).join('') : '<p class="muted">No events yet.</p>';
+
+        if (deliveries.length) {
+          $('webhooks').innerHTML = deliveries.map((delivery) => `
+            <div class="item">
+              <div class="top"><strong>${escapeHtml(delivery.eventName)}</strong>
+                <span class="${delivery.isSignatureValid ? 'good' : 'bad'}">${delivery.isSignatureValid ? 'signature valid' : 'signature INVALID'}</span>
+                <span class="time">${time(delivery.receivedAt)}</span></div>
+            </div>`).join('');
+        }
+      }
+
+      document.body.addEventListener('click', async (event) => {
+        const copyValue = event.target.dataset && event.target.dataset.copy;
+        if (copyValue) { await navigator.clipboard.writeText(copyValue); event.target.textContent = 'Copied'; }
+        const verifyToken = event.target.dataset && event.target.dataset.verify;
+        if (verifyToken) {
+          const result = await call('POST', '/auth/email/verify', { token: verifyToken }, false);
+          $('status').innerHTML = result.success ? `<span class="good">Email verified.</span> Status: ${result.status}` : `<span class="bad">${result.code}</span>`;
+        }
+      });
+
+      poll();
+      setInterval(poll, POLL_INTERVAL_MS);
+      // Opened from a link in a real email: show its token so it can be pasted into Postman/Swagger.
+      const linkToken = new URLSearchParams(location.search).get('token');
+      if (linkToken) {
+        document.getElementById('link-token-value').textContent = linkToken;
+        document.getElementById('link-token').hidden = false;
+      }
+    </script>
+  </body>
+</html>

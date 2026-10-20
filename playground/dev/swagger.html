@@ -1,0 +1,41 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Auth API · Swagger</title>
+    <link rel="stylesheet" href="__SWAGGER_CDN__/swagger-ui.css" />
+    <style>
+      body { margin: 0; background: #fafafa; }
+      .playground-bar { font: 14px/1.4 system-ui, sans-serif; padding: 10px 16px; background: #1f2937; color: #e5e7eb; display: flex; gap: 16px; flex-wrap: wrap; align-items: center; }
+      .playground-bar a { color: #93c5fd; }
+      .playground-bar strong { color: #fff; }
+    </style>
+  </head>
+  <body>
+    <div class="playground-bar">
+      <strong>@techelusive/nest-auth · local playground</strong>
+      <span>Sign in with <em>Login</em> (or any sign-in): the access token is applied automatically.</span>
+      <a href="/dev" target="_blank">Open the dev dashboard (emails, SMS codes, events)</a>
+    </div>
+    <div id="swagger"></div>
+    <script src="__SWAGGER_CDN__/swagger-ui-bundle.js"></script>
+    <script>
+      const ui = SwaggerUIBundle({
+        url: '__SPEC_URL__',
+        dom_id: '#swagger',
+        persistAuthorization: true,
+        displayRequestDuration: true,
+        tryItOutEnabled: true,
+        docExpansion: 'none',
+        filter: true,
+        // Any response carrying an access token (sign-in, refresh, switch organization) authorizes Swagger.
+        responseInterceptor: (response) => {
+          const accessToken = response.body && response.body.accessToken;
+          if (accessToken) ui.preauthorizeApiKey('bearerAuth', accessToken);
+          return response;
+        },
+      });
+    </script>
+  </body>
+</html>
